@@ -42,7 +42,7 @@ class Usuario
     /**
      * @var Collection<int, Encuentro>
      */
-    #[ORM\OneToMany(targetEntity: Encuentro::class, mappedBy: 'encuentrosComoA')]
+    #[ORM\OneToMany(targetEntity: Encuentro::class, mappedBy: 'usuarioA')]
     private Collection $encuentrosComoA;
 
     /**

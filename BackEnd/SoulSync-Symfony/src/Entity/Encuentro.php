@@ -15,10 +15,10 @@ class Encuentro
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'usuarioA')]
+    #[ORM\ManyToOne(inversedBy: 'encuentrosComoA')]
     private ?Usuario $usuarioA = null;
 
-    #[ORM\ManyToOne(inversedBy: 'usuarioB')]
+    #[ORM\ManyToOne(inversedBy: 'encuentrosComoB')]
     private ?Usuario $usuarioB = null;
 
     #[ORM\Column]
