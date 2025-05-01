@@ -6,9 +6,14 @@ use App\Repository\UsuarioRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+
+
+
 
 #[ORM\Entity(repositoryClass: UsuarioRepository::class)]
-class Usuario
+class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -19,7 +24,10 @@ class Usuario
     private ?string $correo = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $contraseña = null;
+    private ?string $password = null;
+
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
     #[ORM\Column]
     private ?\DateTimeImmutable $fechaCreacion = null;
@@ -75,6 +83,17 @@ class Usuario
         return $this->id;
     }
 
+        public function getUserIdentifier(): string
+    {
+        return $this->correo; // o username si usas otro campo
+    }
+
+    public function eraseCredentials(): void
+    {
+        // Aquí podrías limpiar datos sensibles temporales, si los hubiera.
+    }
+
+
     public function getCorreo(): ?string
     {
         return $this->correo;
@@ -87,14 +106,30 @@ class Usuario
         return $this;
     }
 
-    public function getContraseña(): ?string
+    public function getPassword(): ?string
     {
-        return $this->contraseña;
+        return $this->password;
     }
 
-    public function setContraseña(string $contraseña): static
+    public function setPassword(string $password): static
     {
-        $this->contraseña = $contraseña;
+        $this->password = $password;
+
+        return $this;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // garantiza que cada usuario tenga al menos ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
 
         return $this;
     }
