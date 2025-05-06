@@ -42,6 +42,15 @@ class Perfil
     #[ORM\OneToMany(targetEntity: Foto::class, mappedBy: 'perfil')]
     private Collection $fotos;
 
+    #[ORM\Column(length: 255)]
+    private ?string $preferenciaSexual = null;
+
+    #[ORM\Column]
+    private ?int $rangoEdadMin = null;
+
+    #[ORM\Column]
+    private ?int $rangoEdadMax = null;
+
     public function __construct()
     {
        
@@ -151,6 +160,42 @@ class Perfil
                 $foto->setPerfil(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPreferenciaSexual(): ?string
+    {
+        return $this->preferenciaSexual;
+    }
+
+    public function setPreferenciaSexual(string $preferenciaSexual): static
+    {
+        $this->preferenciaSexual = $preferenciaSexual;
+
+        return $this;
+    }
+
+    public function getRangoEdadMin(): ?int
+    {
+        return $this->rangoEdadMin;
+    }
+
+    public function setRangoEdadMin(int $rangoEdadMin): static
+    {
+        $this->rangoEdadMin = $rangoEdadMin;
+
+        return $this;
+    }
+
+    public function getRangoEdadMax(): ?int
+    {
+        return $this->rangoEdadMax;
+    }
+
+    public function setRangoEdadMax(int $rangoEdadMax): static
+    {
+        $this->rangoEdadMax = $rangoEdadMax;
 
         return $this;
     }

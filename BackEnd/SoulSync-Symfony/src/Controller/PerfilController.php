@@ -27,6 +27,10 @@ class PerfilController extends AbstractController
         $genero = $datos['genero'] ?? null;
         $biografia = $datos['biografia'] ?? null;
         $ubicacion = $datos['ubicacion'] ?? null;
+        $preferenciaSexual = $datos['preferencia_sexual'] ?? null;
+        $rangoEdadMin = $datos['rango_edad_min'] ?? null;
+        $rangoEdadMax = $datos['rango_edad_max'] ?? null;
+
 
         // Comprobar campos obligatorios
         if (!$usuarioId || !$nombre || !$edad || !$genero) {
@@ -43,7 +47,26 @@ class PerfilController extends AbstractController
         if ($usuario->getPerfil()) {
             return new JsonResponse(['error' => 'Este usuario ya tiene un perfil'], 400);
         }
-        
+
+        // Validar género
+        if (!in_array($genero, ['hombre', 'mujer'])) {
+            return new JsonResponse(['error' => 'El género debe ser "hombre" o "mujer"'], 400);
+        }
+
+        // Validar preferencia sexual
+        if (!in_array($preferenciaSexual, ['hombre', 'mujer'])) {
+            return new JsonResponse(['error' => 'La preferencia sexual debe ser "hombre" o "mujer"'], 400);
+        }
+
+        // Validar rango de edad
+        if ($rangoEdadMin >= $rangoEdadMax) {
+            return new JsonResponse(['error' => 'El rango de edad mínimo debe ser menor que el máximo'], 400);
+        }
+
+
+
+
+
 
         // Crear el perfil
         $perfil = new Perfil();
@@ -53,6 +76,10 @@ class PerfilController extends AbstractController
         $perfil->setGenero($genero);
         $perfil->setBiografia($biografia);
         $perfil->setUbicacion($ubicacion);
+        $perfil->setPreferenciaSexual($preferenciaSexual);
+        $perfil->setRangoEdadMin($rangoEdadMin);
+        $perfil->setRangoEdadMax($rangoEdadMax);
+
 
         $em->persist($perfil);
         $em->flush();
@@ -79,14 +106,33 @@ class PerfilController extends AbstractController
             $perfil->setEdad($datos['edad']);
         }
         if (isset($datos['genero'])) {
+            if (!in_array($datos['genero'], ['hombre', 'mujer'])) {
+                return new JsonResponse(['error' => 'El género debe ser "hombre" o "mujer"'], 400);
+            }
             $perfil->setGenero($datos['genero']);
         }
+
         if (isset($datos['biografia'])) {
             $perfil->setBiografia($datos['biografia']);
         }
         if (isset($datos['ubicacion'])) {
             $perfil->setUbicacion($datos['ubicacion']);
         }
+        if (isset($datos['preferencia_sexual'])) {
+            if (!in_array($datos['preferencia_sexual'], ['hombre', 'mujer'])) {
+                return new JsonResponse(['error' => 'La preferencia sexual debe ser "hombre" o "mujer"'], 400);
+            }
+            $perfil->setPreferenciaSexual($datos['preferencia_sexual']);
+        }
+
+        if (isset($datos['rango_edad_min']) && isset($datos['rango_edad_max'])) {
+            if ($datos['rango_edad_min'] >= $datos['rango_edad_max']) {
+                return new JsonResponse(['error' => 'El rango de edad mínimo debe ser menor que el máximo'], 400);
+            }
+            $perfil->setRangoEdadMin($datos['rango_edad_min']);
+            $perfil->setRangoEdadMax($datos['rango_edad_max']);
+        }
+
 
         $em->flush();
 
