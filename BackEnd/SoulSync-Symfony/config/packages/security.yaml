@@ -10,23 +10,35 @@ security:
 
     firewalls:
         dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            pattern: ^/(_(profiler|wdt)|css|images|js)/  # Esto deshabilita seguridad para rutas de desarrollo
             security: false
+
+        login:
+            pattern: ^/api/login
+            stateless: true  # No usar sesiones
+            json_login:
+                check_path: /api/login  # Ruta donde se reciben las credenciales
+                username_path: correo   # Nombre del campo de correo en el body JSON
+                password_path: password  # Nombre del campo de contraseña en el body JSON
+                success_handler: lexik_jwt_authentication.handler.authentication_success  # Generación del JWT
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure  # Manejo de error
+
+        api:
+            pattern: ^/api
+            stateless: true  # No usar sesiones
+            provider: usuario_provider
+            jwt: ~  # Configuración para manejar el JWT
+            logout:
+                path: /api/logout  # Ruta para manejar el logout
+                # Esta opción se utiliza para invalidar tokens si estás utilizando JWT
+                invalidate_session: false
 
         main:
             lazy: true
             provider: usuario_provider
-            stateless: true
+            stateless: true  # No usar sesiones
 
     access_control:
-
-        - { path: ^/profile, roles: ROLE_USER }
-
-when@test:
-    security:
-        password_hashers:
-            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
-                algorithm: auto
-                cost: 4
-                time_cost: 3
-                memory_cost: 10
+        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }  # Permitir acceso anónimo al login
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }  # Requiere autenticación para otras rutas de la API
+        - { path: ^/profile, roles: ROLE_USER }  # Ruta de perfil requiere el rol ROLE_USER
