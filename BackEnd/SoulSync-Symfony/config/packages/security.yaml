@@ -1,39 +1,44 @@
 security:
-    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+
     providers:
-        users_in_memory: { memory: null }
+        usuario_provider:
+            entity:
+                class: App\Entity\Usuario
+                property: correo
+
     firewalls:
         dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            pattern: ^/(_(profiler|wdt)|css|images|js)/  # Esto deshabilita seguridad para rutas de desarrollo
             security: false
+
+        login:
+            pattern: ^/api/login
+            stateless: true  # No usar sesiones
+            json_login:
+                check_path: /api/login  # Ruta donde se reciben las credenciales
+                username_path: correo   # Nombre del campo de correo en el body JSON
+                password_path: password  # Nombre del campo de contraseña en el body JSON
+                success_handler: lexik_jwt_authentication.handler.authentication_success  # Generación del JWT
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure  # Manejo de error
+
+        api:
+            pattern: ^/api
+            stateless: true  # No usar sesiones
+            provider: usuario_provider
+            jwt: ~  # Configuración para manejar el JWT
+            logout:
+                path: /api/logout  # Ruta para manejar el logout
+                # Esta opción se utiliza para invalidar tokens si estás utilizando JWT
+                invalidate_session: false
+
         main:
             lazy: true
-            provider: users_in_memory
+            provider: usuario_provider
+            stateless: true  # No usar sesiones
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
-
-when@test:
-    security:
-        password_hashers:
-            # By default, password hashers are resource intensive and take time. This is
-            # important to generate secure password hashes. In tests however, secure hashes
-            # are not important, waste resources and increase test times. The following
-            # reduces the work factor to the lowest possible values.
-            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
-                algorithm: auto
-                cost: 4 # Lowest possible value for bcrypt
-                time_cost: 3 # Lowest possible value for argon
-                memory_cost: 10 # Lowest possible value for argon
+        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }  # Permitir acceso anónimo al login
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }  # Requiere autenticación para otras rutas de la API
+        - { path: ^/profile, roles: ROLE_USER }  # Ruta de perfil requiere el rol ROLE_USER

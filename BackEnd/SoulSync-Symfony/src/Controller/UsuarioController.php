@@ -22,17 +22,19 @@ class UsuarioController extends AbstractController
 
         // Extraer correo y contraseña del array recibido
         $correo = $datos['correo'] ?? null;
-        $contraseña = $datos['contraseña'] ?? null;
+        $password = $datos['contraseña'] ?? null;
+        $roles = $datos['roles'] ?? null;
 
         // Verificar que se hayan enviado ambos datos
-        if (!$correo || !$contraseña) {
+        if (!$correo || !$password) {
             return new JsonResponse(['error' => 'Faltan datos obligatorios'], 400);
         }
 
         // Crear un nuevo objeto Usuario
         $usuario = new Usuario();
         $usuario->setCorreo($correo);
-        $usuario->setContraseña(password_hash($contraseña, PASSWORD_BCRYPT)); // Encriptar la contraseña
+        $usuario->setPassword(password_hash($password, PASSWORD_BCRYPT)); // Encriptar la contraseña
+        $usuario->setRoles($roles); // Asignar rol por defecto
         $usuario->setFechaCreacion(new \DateTimeImmutable()); // Fecha actual
 
         // Guardar el usuario en la base de datos
