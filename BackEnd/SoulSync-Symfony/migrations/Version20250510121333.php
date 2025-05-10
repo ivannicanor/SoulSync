@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250506175456 extends AbstractMigration
+final class Version20250510121333 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,7 +21,7 @@ final class Version20250506175456 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE usuario ADD roles JSON NOT NULL COMMENT '(DC2Type:json)', CHANGE contraseña password VARCHAR(255) NOT NULL
+            ALTER TABLE perfil ADD preferencia_sexual VARCHAR(255) NOT NULL, ADD rango_edad_min INT NOT NULL, ADD rango_edad_max INT NOT NULL
         SQL);
     }
 
@@ -29,7 +29,7 @@ final class Version20250506175456 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE usuario DROP roles, CHANGE password contraseña VARCHAR(255) NOT NULL
+            ALTER TABLE perfil DROP preferencia_sexual, DROP rango_edad_min, DROP rango_edad_max
         SQL);
     }
 }

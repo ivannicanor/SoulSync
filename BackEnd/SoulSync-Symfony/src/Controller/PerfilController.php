@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Security;
+
 
 // Ruta base para este controlador: /perfiles
 #[Route('/perfiles', name: 'perfil_')]
@@ -21,7 +23,15 @@ class PerfilController extends AbstractController
         $datos = json_decode($request->getContent(), true);
 
         // Recoger datos del cuerpo de la petición
-        $usuarioId = $datos['usuario_id'] ?? null;
+
+        //Al tener JWT no hace falta el id de usuario en el body, ya que se obtiene del token
+        //$usuarioId = $datos['usuario_id'] ?? null;
+
+        $usuario = $this->getUser();
+        if (!$usuario instanceof Usuario) {
+            return new JsonResponse(['error' => 'Usuario no autenticado'], 401);
+        }
+
         $nombre = $datos['nombre'] ?? null;
         $edad = $datos['edad'] ?? null;
         $genero = $datos['genero'] ?? null;
@@ -33,12 +43,14 @@ class PerfilController extends AbstractController
 
 
         // Comprobar campos obligatorios
-        if (!$usuarioId || !$nombre || !$edad || !$genero) {
+        if (!$usuario || !$nombre || !$edad || !$genero) {
             return new JsonResponse(['error' => 'Faltan campos obligatorios'], 400);
         }
 
-        // Buscar al usuario en la base de datos
-        $usuario = $em->getRepository(Usuario::class)->find($usuarioId);
+        // Buscar al usuario en la base de datos (No es necesario si se obtiene del token)
+        // Si se quiere buscar por id, descomentar la siguiente línea y comentar la anterior
+        //$usuario = $em->getRepository(Usuario::class)->find($usuarioId);
+
         if (!$usuario) {
             return new JsonResponse(['error' => 'Usuario no encontrado'], 404);
         }
@@ -89,11 +101,23 @@ class PerfilController extends AbstractController
 
     // Ruta: PUT /perfiles/{id} → Actualizar un perfil existente
     #[Route('/{id}', name: 'actualizar', methods: ['PUT'])]
-    public function actualizar(int $id, Request $request, EntityManagerInterface $em): JsonResponse
-    {
+    public function actualizar(
+        int $id,
+        Request $request,
+        EntityManagerInterface $em,
+        Security $security
+    ): JsonResponse {
         $perfil = $em->getRepository(Perfil::class)->find($id);
         if (!$perfil) {
             return new JsonResponse(['error' => 'Perfil no encontrado'], 404);
+        }
+
+        // Obtener el usuario autenticado
+        $usuarioActual = $security->getUser();
+
+        // Verificar que el perfil le pertenezca
+        if ($perfil->getUsuario() !== $usuarioActual) {
+            return new JsonResponse(['error' => 'No tienes permiso para editar este perfil'], 403);
         }
 
         $datos = json_decode($request->getContent(), true);
@@ -138,4 +162,35 @@ class PerfilController extends AbstractController
 
         return new JsonResponse(['mensaje' => 'Perfil actualizado correctamente']);
     }
+
+    //Obtener el perfil del usuario autenticado
+    // Ruta: GET /perfiles/me → Obtener el perfil del usuario autenticado
+    #[Route('/me', name: 'mi_perfil', methods: ['GET'])]
+    public function miPerfil(): JsonResponse
+    {
+        $usuario = $this->getUser();
+        if (!$usuario instanceof Usuario) {
+            return new JsonResponse(['error' => 'Usuario no autenticado'], 401);
+        }
+
+        $perfil = $usuario->getPerfil();
+        if (!$perfil) {
+            return new JsonResponse(['perfil_creado' => false]);
+        }
+
+        return new JsonResponse([
+            'perfil_creado' => true,
+            'datos' => [
+                'nombre' => $perfil->getNombre(),
+                'edad' => $perfil->getEdad(),
+                'genero' => $perfil->getGenero(),
+                'ubicacion' => $perfil->getUbicacion(),
+                'preferenciaSexual' => $perfil->getPreferenciaSexual(),
+                'rangoEdadMin' => $perfil->getRangoEdadMin(),
+                'rangoEdadMax' => $perfil->getRangoEdadMax(),
+                'biografia' => $perfil->getBiografia(),
+            ]
+        ]);
+    }
+
 }
