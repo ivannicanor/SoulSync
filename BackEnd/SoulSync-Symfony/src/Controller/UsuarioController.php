@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Usuario;
+use App\Service\AuthService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -64,4 +65,23 @@ class UsuarioController extends AbstractController
             'fechaCreacion' => $usuario->getFechaCreacion()->format('Y-m-d H:i:s'),
         ]);
     }
+
+    //Obtener el usuario autenticado actual
+    #[Route('/api/me', name: 'api_me', methods: ['GET'])]
+    public function me(AuthService $authService): JsonResponse
+    {
+        $usuario = $authService->getUsuarioActual();
+
+        if (!$usuario) {
+            return new JsonResponse(['error' => 'No autenticado'], 401);
+        }
+
+        return new JsonResponse([
+            'id' => $usuario->getId(),
+            'correo' => $usuario->getCorreo(),
+            'roles' => $usuario->getRoles(),
+            'tienePerfil' => $usuario->getPerfil() !== null,
+        ]);
+    }
+
 }
