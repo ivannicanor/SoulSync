@@ -52,4 +52,35 @@ class EncuentroController extends AbstractController
 
         return new JsonResponse($datos);
     }
+
+
+    #[Route('/matches/{id}', name: 'listar_matches', methods: ['GET'])]
+    public function listarMatches(int $id, EntityManagerInterface $em): JsonResponse
+    {
+        $usuario = $em->getRepository(Usuario::class)->find($id);
+
+        if (!$usuario) {
+            return new JsonResponse(['error' => 'Usuario no encontrado'], 404);
+        }
+
+        $qb = $em->createQueryBuilder();
+        $qb->select('e')
+            ->from(Encuentro::class, 'e')
+            ->where('e.usuarioA = :usuario OR e.usuarioB = :usuario')
+            ->setParameter('usuario', $usuario);
+
+        $resultados = $qb->getQuery()->getResult();
+
+        $matches = [];
+        foreach ($resultados as $encuentro) {
+            $matches[] = [
+                'id' => $encuentro->getId(),
+                'usuario_a_id' => $encuentro->getUsuarioA()->getId(),
+                'usuario_b_id' => $encuentro->getUsuarioB()->getId(),
+                'fecha' => $encuentro->getFecha()->format('Y-m-d H:i:s')
+            ];
+        }
+
+        return new JsonResponse($matches);
+    }
 }

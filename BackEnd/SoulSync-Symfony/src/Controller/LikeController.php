@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Like;
 use App\Entity\Usuario;
 use App\Entity\Encuentro;
+use App\Entity\Notificacion;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -72,10 +73,28 @@ class LikeController extends AbstractController
 
             $em->persist($encuentro);
 
+            // 👉 Crear la notificación para el usuario origen
+            $notificacionA = new Notificacion();
+            $notificacionA->setUsuario($usuarioOrigen);
+            $notificacionA->setMensaje("¡Has hecho Match con " . $usuarioDestino->getPerfil()->getNombre() . "!");
+            $notificacionA->setFecha(new \DateTimeImmutable());
+            $notificacionA->setLeido(false);
+
+            // 👉 Crear la notificación para el usuario destino
+            $notificacionB = new Notificacion();
+            $notificacionB->setUsuario($usuarioDestino);
+            $notificacionB->setMensaje("¡Has hecho Match con " . $usuarioOrigen->getPerfil()->getNombre() . "!");
+            $notificacionB->setFecha(new \DateTimeImmutable());
+            $notificacionB->setLeido(false);
+
+            $em->persist($notificacionA);
+            $em->persist($notificacionB);
+
             $em->flush();
 
             return new JsonResponse(['mensaje' => '¡Match creado!', 'encuentro_id' => $encuentro->getId()], 201);
         }
+
 
         // Si no hay match mutuo, solo guardar el like
         $em->flush();
