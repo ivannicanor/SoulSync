@@ -65,6 +65,13 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Mensaje::class, mappedBy: 'remitente')]
     private Collection $mensajes;
 
+    /**
+     * @var Collection<int, Notificacion>
+     */
+    #[ORM\OneToMany(targetEntity: Notificacion::class, mappedBy: 'usuario')]
+    private Collection $notificaciones;
+
+   
     public function __construct()
     {
         $this->likeOrigen = new ArrayCollection();
@@ -72,6 +79,8 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
         $this->encuentrosComoA = new ArrayCollection();
         $this->encuentrosComoB = new ArrayCollection();
         $this->mensajes = new ArrayCollection();
+        $this->notificaciones = new ArrayCollection();
+       
     }
 
     
@@ -318,5 +327,36 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @return Collection<int, Notificacion>
+     */
+    public function getNotificaciones(): Collection
+    {
+        return $this->notificaciones;
+    }
+
+    public function addNotificacion(Notificacion $notificacion): static
+    {
+        if (!$this->notificaciones->contains($notificacion)) {
+            $this->notificaciones->add($notificacion);
+            $notificacion->setUsuario($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotificacion(Notificacion $notificacion): static
+    {
+        if ($this->notificaciones->removeElement($notificacion)) {
+            // set the owning side to null (unless already changed)
+            if ($notificacion->getUsuario() === $this) {
+                $notificacion->setUsuario(null);
+            }
+        }
+
+        return $this;
+    }
+
+    
   
 }
