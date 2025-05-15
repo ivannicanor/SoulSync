@@ -66,7 +66,7 @@ class AuthController extends AbstractController
         return new JsonResponse(['message' => 'Logout exitoso'], 200);
     }
 
-    #[Route('/api/register', name: 'api_register', methods: ['POST'])]
+    #[Route('/register', name: 'api_register', methods: ['POST'])]
     public function register(
         Request $request,
         EntityManagerInterface $em,
