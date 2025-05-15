@@ -9,95 +9,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 
 // Ruta base para este controlador: /perfiles
-#[Route('/perfiles', name: 'perfil_')]
+#[Route('api/perfiles', name: 'perfil_')]
 class PerfilController extends AbstractController
 {
-    // Ruta: POST /perfiles → Crear un nuevo perfil
-    #[Route('', name: 'crear', methods: ['POST'])]
-    public function crear(Request $request, EntityManagerInterface $em): JsonResponse
-    {
-        $datos = json_decode($request->getContent(), true);
-
-        // Recoger datos del cuerpo de la petición
-
-        //Al tener JWT no hace falta el id de usuario en el body, ya que se obtiene del token
-        //$usuarioId = $datos['usuario_id'] ?? null;
-
-        $usuario = $this->getUser();
-        if (!$usuario instanceof Usuario) {
-            return new JsonResponse(['error' => 'Usuario no autenticado'], 401);
-        }
-
-        $nombre = $datos['nombre'] ?? null;
-        $edad = $datos['edad'] ?? null;
-        $genero = $datos['genero'] ?? null;
-        $biografia = $datos['biografia'] ?? null;
-        $ubicacion = $datos['ubicacion'] ?? null;
-        $preferenciaSexual = $datos['preferencia_sexual'] ?? null;
-        $rangoEdadMin = $datos['rango_edad_min'] ?? null;
-        $rangoEdadMax = $datos['rango_edad_max'] ?? null;
-
-
-        // Comprobar campos obligatorios
-        if (!$usuario || !$nombre || !$edad || !$genero) {
-            return new JsonResponse(['error' => 'Faltan campos obligatorios'], 400);
-        }
-
-        // Buscar al usuario en la base de datos (No es necesario si se obtiene del token)
-        // Si se quiere buscar por id, descomentar la siguiente línea y comentar la anterior
-        //$usuario = $em->getRepository(Usuario::class)->find($usuarioId);
-
-        if (!$usuario) {
-            return new JsonResponse(['error' => 'Usuario no encontrado'], 404);
-        }
-        // Comprobar si el usuario ya tiene un perfil
-        // Si el usuario ya tiene un perfil, devolver error
-        if ($usuario->getPerfil()) {
-            return new JsonResponse(['error' => 'Este usuario ya tiene un perfil'], 400);
-        }
-
-        // Validar género
-        if (!in_array($genero, ['hombre', 'mujer'])) {
-            return new JsonResponse(['error' => 'El género debe ser "hombre" o "mujer"'], 400);
-        }
-
-        // Validar preferencia sexual
-        if (!in_array($preferenciaSexual, ['hombre', 'mujer'])) {
-            return new JsonResponse(['error' => 'La preferencia sexual debe ser "hombre" o "mujer"'], 400);
-        }
-
-        // Validar rango de edad
-        if ($rangoEdadMin >= $rangoEdadMax) {
-            return new JsonResponse(['error' => 'El rango de edad mínimo debe ser menor que el máximo'], 400);
-        }
-
-
-
-
-
-
-        // Crear el perfil
-        $perfil = new Perfil();
-        $perfil->setUsuario($usuario);
-        $perfil->setNombre($nombre);
-        $perfil->setEdad($edad);
-        $perfil->setGenero($genero);
-        $perfil->setBiografia($biografia);
-        $perfil->setUbicacion($ubicacion);
-        $perfil->setPreferenciaSexual($preferenciaSexual);
-        $perfil->setRangoEdadMin($rangoEdadMin);
-        $perfil->setRangoEdadMax($rangoEdadMax);
-
-
-        $em->persist($perfil);
-        $em->flush();
-
-        return new JsonResponse(['id' => $perfil->getId()], 201);
-    }
 
     // Ruta: PUT /perfiles/{id} → Actualizar un perfil existente
     #[Route('/{id}', name: 'actualizar', methods: ['PUT'])]
@@ -163,8 +81,7 @@ class PerfilController extends AbstractController
         return new JsonResponse(['mensaje' => 'Perfil actualizado correctamente']);
     }
 
-    //Obtener el perfil del usuario autenticado
-    // Ruta: GET /perfiles/me → Obtener el perfil del usuario autenticado
+    //RUTA USADA EN EL FRONT PARA OBTENER LOS DATOS DEL PERFIL!!!
     #[Route('/me', name: 'mi_perfil', methods: ['GET'])]
     public function miPerfil(): JsonResponse
     {
@@ -191,6 +108,35 @@ class PerfilController extends AbstractController
                 'biografia' => $perfil->getBiografia(),
             ]
         ]);
+    }
+
+
+    //RUTA USADA EN EL FRONT PARA CREAR UN PERFIL!!!
+    #[Route('/crear', name: 'api_crear_perfiles', methods: ['POST'])]
+    public function crearPerfil(Request $request, EntityManagerInterface $em, Security $security): JsonResponse
+    {
+        $usuario = $security->getUser();
+        if (!$usuario) {
+            return new JsonResponse(['error' => 'Usuario no autenticado'], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        $perfil = new Perfil();
+        $perfil->setUsuario($usuario);
+        $perfil->setNombre($data['nombre'] ?? '');
+        $perfil->setEdad((int) $data['edad']);
+        $perfil->setGenero($data['genero'] ?? '');
+        $perfil->setBiografia($data['biografia'] ?? null);
+        $perfil->setUbicacion($data['ubicacion'] ?? null);
+        $perfil->setPreferenciaSexual($data['preferenciaSexual'] ?? '');
+        $perfil->setRangoEdadMin((int) $data['rangoEdadMin']);
+        $perfil->setRangoEdadMax((int) $data['rangoEdadMax']);
+
+        $em->persist($perfil);
+        $em->flush();
+
+        return new JsonResponse(['mensaje' => 'Perfil creado'], 201);
     }
 
 }

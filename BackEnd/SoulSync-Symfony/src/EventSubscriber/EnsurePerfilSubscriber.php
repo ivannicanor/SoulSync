@@ -43,8 +43,9 @@ class EnsurePerfilSubscriber implements EventSubscriberInterface
             'api_login',
             'api_register',
             'api_logout',
-            'perfil_crear',
-            'perfil_mi_perfil' // permitir que el usuario cree su perfil o lo consulte
+            'perfil_api_crear_perfiles',
+            'perfil_mi_perfil',
+            'api_validar_token'
         ];
 
         if (in_array($rutaActual, $rutasPermitidas, true)) {

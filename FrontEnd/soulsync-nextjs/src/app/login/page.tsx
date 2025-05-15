@@ -1,4 +1,3 @@
-// app/login/page.tsx (Next.js 13+ with App Router and TypeScript)
 'use client';
 
 import { useState } from 'react';
@@ -38,20 +37,21 @@ export default function LoginPage() {
       localStorage.setItem('token', data.token);
 
       // Redirigimos al usuario a crear perfil o al home
-      const perfilRes = await fetch('http://localhost:8000/perfiles/mi-perfil', {
-        method: 'POST',  // Verifica que el método sea el correcto (POST, PUT, etc.)
+      const perfilRes = await fetch('http://localhost:8000/api/perfiles/me', {
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${data.token}`,
         },
       });
 
-      if (perfilRes.status === 403) {
-        // Si no tiene perfil, redirigir a crear perfil
+      const perfilData = await perfilRes.json();
+
+      if (!perfilData.perfil_creado) {
         router.push('/perfil/crear');
       } else {
-        // Si ya tiene perfil, llevar al home (o donde definas)
-        router.push('/');
+        router.push('/home');
       }
+
     } catch (err) {
       setError('Error inesperado al iniciar sesión');
     }
@@ -85,6 +85,16 @@ export default function LoginPage() {
           Entrar
         </button>
       </form>
+
+      <p className="mt-4 text-sm">
+        ¿Aún no tienes cuenta?{' '}
+        <a
+          href="/register"
+          className="text-blue-600 hover:underline"
+        >
+          Registrarse
+        </a>
+      </p>
     </main>
   );
 }

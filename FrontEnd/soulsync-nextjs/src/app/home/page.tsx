@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import TarjetaPerfil from "./TarjetaPerfil/TarjetaPerfil"; // Componente que muestra la información del perfil.
-import ControlesPerfil from "./controlesBotones/ControlesPerfil"; // Componente para los botones de Like, Dislike y Super Like.
-import Navbar from "./navbar/Navbar"; // Componente de navegación superior.
-import estilos from "./estilos.module.css"; // Estilos CSS para la página.
+import TarjetaPerfil from "./TarjetaPerfil/TarjetaPerfil";
+import ControlesPerfil from "./controlesBotones/ControlesPerfil";
+import Navbar from "./navbar/Navbar";
+import estilos from "./estilos.module.css";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
+import LoadingScreen from "../ui/LoadingScreen";
+import { usePerfilGuard } from "@/hooks/usePerfilGuard";
 
-/// 👉 Datos de prueba para representar los perfiles (simulación de datos del backend).
 const datosPrueba = [
   {
     nombre: "Lucía",
@@ -31,35 +33,37 @@ const datosPrueba = [
   },
 ];
 
-/// 👉 Componente principal de la página.
 const Home = () => {
-  // Estado para controlar el índice del perfil que se muestra actualmente.
+  const autenticado = useAuthGuard();
+  const perfilCreado = usePerfilGuard();
   const [indice, setIndice] = useState(0);
-  // Estado para controlar si se han terminado los perfiles.
   const [sinPerfiles, setSinPerfiles] = useState(false);
 
-  /// 👉 Función que avanza al siguiente perfil o muestra el mensaje si ya no hay más.
+  // 👉 Mientras se está validando el token, no mostramos nada (pantalla de carga)
+  if (autenticado === null || perfilCreado === null) {
+  return <LoadingScreen />;
+  }
+  if (autenticado === false) return null;
+  if (perfilCreado  === false) return null;
+
   const siguientePerfil = () => {
     if (indice < datosPrueba.length - 1) {
-      setIndice(indice + 1); // Avanza al siguiente índice
+      setIndice(indice + 1);
     } else {
-      setSinPerfiles(true); // Si se acaban, muestra el mensaje final.
+      setSinPerfiles(true);
     }
   };
 
-  /// 👉 Función que se ejecuta al dar "Like".
   const manejarLike = () => {
-    alert("Has dado Like a " + datosPrueba[indice].nombre); // Muestra una alerta
-    siguientePerfil(); // Avanza al siguiente perfil
+    alert("Has dado Like a " + datosPrueba[indice].nombre);
+    siguientePerfil();
   };
 
-  /// 👉 Función que se ejecuta al dar "Dislike".
   const manejarDislike = () => {
     alert("Has dado Dislike a " + datosPrueba[indice].nombre);
     siguientePerfil();
   };
 
-  /// 👉 Función que se ejecuta al dar "Super Like".
   const manejarSuperLike = () => {
     alert("Has dado Super Like a " + datosPrueba[indice].nombre);
     siguientePerfil();
@@ -67,23 +71,20 @@ const Home = () => {
 
   return (
     <div>
-      {/* 👉 Navbar añadido en la parte superior */}
       <Navbar />
 
       <div className={estilos.contenedor}>
         {sinPerfiles ? (
-          // 👉 Si ya no hay más perfiles, muestra este mensaje.
           <div className={estilos.mensajeFinal}>
             🥲 No hay más perfiles por ahora. ¡Vuelve más tarde!
           </div>
         ) : (
-          // 👉 Si aún hay perfiles, muestra la tarjeta y los controles.
           <>
             <TarjetaPerfil
-              {...datosPrueba[indice]} // Pasamos los datos del perfil actual
-              alDarLike={manejarLike} // Pasamos la función de Like
-              alDarDislike={manejarDislike} // Pasamos la función de Dislike
-              alDarSuperLike={manejarSuperLike} // Pasamos la función de Super Like
+              {...datosPrueba[indice]}
+              alDarLike={manejarLike}
+              alDarDislike={manejarDislike}
+              alDarSuperLike={manejarSuperLike}
             />
             <ControlesPerfil
               onLike={manejarLike}
@@ -96,5 +97,6 @@ const Home = () => {
     </div>
   );
 };
+
 
 export default Home;
