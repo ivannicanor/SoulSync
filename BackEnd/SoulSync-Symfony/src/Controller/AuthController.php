@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -16,6 +17,19 @@ use App\Entity\Usuario;
 
 class AuthController extends AbstractController
 {
+
+    #[Route('/api/me', name: 'api_me', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function me(UserInterface $usuario): JsonResponse
+    {
+        return new JsonResponse([
+            'id' => $usuario->getId(),
+            'correo' => $usuario->getUserIdentifier(),
+            'perfilCompleto' => $usuario->getPerfil() !== null, // true si tiene perfil
+        ]);
+    }
+
+    //RUTA USADA PARA LOGIN EN FRONTEND!!!
     #[Route('/api/login', name: 'api_login', methods: ['POST'])]
     public function login(
         Request $request,
@@ -38,7 +52,7 @@ class AuthController extends AbstractController
             return new JsonResponse(['error' => 'Credenciales inválidas'], 401);
         }
 
-        $token = $jwtManager->create($usuario);
+        $token = $jwtManager->create(user: $usuario);
 
         return new JsonResponse(['token' => $token]);
     }
@@ -52,7 +66,7 @@ class AuthController extends AbstractController
         return new JsonResponse(['message' => 'Logout exitoso'], 200);
     }
 
-    #[Route('/api/register', name: 'api_register', methods: ['POST'])]
+    #[Route('/register', name: 'api_register', methods: ['POST'])]
     public function register(
         Request $request,
         EntityManagerInterface $em,
@@ -84,10 +98,34 @@ class AuthController extends AbstractController
         $hashedPassword = $passwordHasher->hashPassword($usuario, $password);
         $usuario->setPassword($hashedPassword);
 
+        $usuario->setRoles(['ROLE_USER']);
+
         $em->persist($usuario);
         $em->flush();
 
         return new JsonResponse(['mensaje' => 'Usuario registrado exitosamente'], 201);
+    }
+    //RUTA USADA PARA VALIDAR TOKEN EN FRONTEND!!!
+    #[Route('/api/validar-token', name: 'api_validar_token', methods: ['GET'])]
+    public function validarToken(
+        Request $request,
+        JWTTokenManagerInterface $jwtManager,
+        TokenStorageInterface $tokenStorage
+    ): JsonResponse {
+        $token = str_replace('Bearer ', '', $request->headers->get('Authorization') ?? '');
+
+        if (!$token) {
+            return new JsonResponse(['error' => 'Token no proporcionado'], 401);
+        }
+
+        try {
+            $payload = $jwtManager->parse($token);
+
+            // Puedes validar campos extra si quieres
+            return new JsonResponse(['status' => 'valid'], status: 200);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Token inválido o expirado'], 401);
+        }
     }
 
 }
