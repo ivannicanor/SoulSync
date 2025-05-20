@@ -43,7 +43,7 @@ const Navbar: React.FC = () => {
         </Link>
 
         {esAdmin && (
-          <Link href="http://localhost:8000/api/admin">
+          <Link href="http://localhost:8000/admin">
             <button className={estilos.boton}>Admin</button>
           </Link>
         )}
