@@ -98,6 +98,7 @@ class PerfilController extends AbstractController
         return new JsonResponse([
             'perfil_creado' => true,
             'datos' => [
+                'id' => $perfil->getId(),
                 'nombre' => $perfil->getNombre(),
                 'edad' => $perfil->getEdad(),
                 'genero' => $perfil->getGenero(),

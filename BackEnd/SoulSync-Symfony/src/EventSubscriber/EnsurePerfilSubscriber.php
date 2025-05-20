@@ -45,7 +45,10 @@ class EnsurePerfilSubscriber implements EventSubscriberInterface
             'api_logout',
             'perfil_api_crear_perfiles',
             'perfil_mi_perfil',
-            'api_validar_token'
+            'api_validar_token',
+            'sugerencia_',
+            'sugerencia_listar',
+            'sugerencia_listar_todos',
         ];
 
         if (in_array($rutaActual, $rutasPermitidas, true)) {
