@@ -83,4 +83,53 @@ class EncuentroController extends AbstractController
 
         return new JsonResponse($matches);
     }
+
+
+
+
+
+    #[Route('/usuarioMatch/{id}', name: 'ver_por_usuario_Matches', methods: ['GET'])]
+    public function verPorUsuarioLosMatches(int $id, EntityManagerInterface $em): JsonResponse
+    {
+        $usuario = $em->getRepository(Usuario::class)->find($id);
+        if (!$usuario) {
+            return new JsonResponse(['error' => 'Usuario no encontrado'], 404);
+        }
+
+        try {
+            $encuentros = array_merge(
+                $usuario->getEncuentrosComoA()->toArray(),
+                $usuario->getEncuentrosComoB()->toArray()
+            );
+        } catch (\Throwable $e) {
+            return new JsonResponse([
+                'error' => 'Error interno al obtener encuentros',
+                'detalle' => $e->getMessage()
+            ], 500);
+        }
+
+        $datos = [];
+
+        foreach ($encuentros as $encuentro) {
+            $otro = $encuentro->getUsuarioA() === $usuario
+                ? $encuentro->getUsuarioB()
+                : $encuentro->getUsuarioA();
+
+            $otroId = $otro->getId();
+
+            // Si ya se añadió este usuario, lo saltamos
+            if (isset($datos[$otroId])) {
+                continue;
+            }
+
+            $datos[$otroId] = [
+                'con_usuario_id' => $otroId,
+                'con_nombre' => $otro->getPerfil()?->getNombre(),
+                'fecha' => $encuentro->getFecha()->format('Y-m-d H:i:s'),
+                'encuentro_id' => $encuentro->getId()
+            ];
+        }
+
+        return new JsonResponse(array_values($datos)); // Devuelve los valores del array asociativo
+    }
 }

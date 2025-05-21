@@ -99,6 +99,7 @@ class PerfilController extends AbstractController
             'perfil_creado' => true,
             'datos' => [
                 'id' => $perfil->getId(),
+                'usuarioId' => $perfil->getUsuario()->getId(),
                 'nombre' => $perfil->getNombre(),
                 'edad' => $perfil->getEdad(),
                 'genero' => $perfil->getGenero(),

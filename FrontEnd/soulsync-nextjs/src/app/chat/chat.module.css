@@ -36,6 +36,15 @@
     max-width: 70%;
 }
 
+.cargandoMensajes, .sinMensajes {
+    align-self: center;
+    margin: auto;
+    padding: 10px;
+    color: #888;
+    font-style: italic;
+    text-align: center;
+}
+
 .inputContainer {
     display: flex;
     gap: 10px;
