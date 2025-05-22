@@ -51,6 +51,12 @@ class EnsurePerfilSubscriber implements EventSubscriberInterface
             'sugerencia_listar_todos',
             'admin_login',
             'admin',
+            'estadisticas_',
+            'estadisticas_genero',
+            'estadisticas_edad',
+            'estadisticas_usuarios_por_mes',
+            'estadisticas_top_localidades',
+            'estadisticas_perfiles_incompletos',
         ];
 
         if (in_array($rutaActual, $rutasPermitidas, true)) {
