@@ -18,7 +18,7 @@ class PerfilController extends AbstractController
 {
 
     // Ruta: PUT /perfiles/{id} → Actualizar un perfil existente
-    #[Route('/{id}', name: 'actualizar', methods: ['PUT'])]
+    #[Route(path: '/{id}', name: 'actualizar', methods: ['PUT'])]
     public function actualizar(
         int $id,
         Request $request,

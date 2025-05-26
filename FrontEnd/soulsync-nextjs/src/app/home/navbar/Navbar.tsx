@@ -12,6 +12,7 @@ interface DecodedToken {
 
 const Navbar: React.FC = () => {
   const [esAdmin, setEsAdmin] = useState(false);
+  const [esManager, setEsManager] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -20,6 +21,9 @@ const Navbar: React.FC = () => {
         const decoded = jwtDecode<DecodedToken>(token);
         if (decoded.roles && decoded.roles.includes("ROLE_ADMIN")) {
           setEsAdmin(true);
+        }
+        if (decoded.roles && decoded.roles.includes("ROLE_MANAGER")) {
+          setEsManager(true);
         }
       } catch (error) {
         console.error("Error al decodificar el token:", error);
@@ -43,8 +47,14 @@ const Navbar: React.FC = () => {
         </Link>
 
         {esAdmin && (
-          <Link href="http://localhost:8000/api/admin">
+          <Link href="http://localhost:8000/admin">
             <button className={estilos.boton}>Admin</button>
+          </Link>
+        )}
+
+        {esManager && (
+          <Link href="/estadisticas">
+            <button className={estilos.boton}>Manager</button>
           </Link>
         )}
 

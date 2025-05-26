@@ -49,13 +49,16 @@ class EnsurePerfilSubscriber implements EventSubscriberInterface
             'sugerencia_',
             'sugerencia_listar',
             'sugerencia_listar_todos',
-            'mensaje_',
-            'mensaje_ver_por_encuentro',
-            'encuentro_',
-            'encuentro_ver_por_usuario',
-            'encuentro_ver_por_usuario_Matches',
-            'mensaje_crear',
-            'like_crear'
+            'admin_login',
+            'admin',
+            'estadisticas_',
+            'estadisticas_genero',
+            'estadisticas_edad',
+            'estadisticas_usuarios_por_mes',
+            'estadisticas_top_localidades',
+            'estadisticas_perfiles_incompletos',
+            'api/perfiles',
+            'perfil_actualizar',
         ];
 
         if (in_array($rutaActual, $rutasPermitidas, true)) {
