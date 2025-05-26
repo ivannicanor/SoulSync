@@ -36,6 +36,15 @@
     max-width: 70%;
 }
 
+.cargandoMensajes, .sinMensajes {
+    align-self: center;
+    margin: auto;
+    padding: 10px;
+    color: #888;
+    font-style: italic;
+    text-align: center;
+}
+
 .inputContainer {
     display: flex;
     gap: 10px;
@@ -61,6 +70,15 @@
     border-radius: 20px;
     cursor: pointer;
 }
+.cargandoMensajes, .sinMensajes {
+    align-self: center;
+    margin: auto;
+    padding: 10px;
+    color: #888;
+    font-style: italic;
+    text-align: center;
+}
+
 
 .menuLateral {
     width: 220px;
