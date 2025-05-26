@@ -57,6 +57,8 @@ class EnsurePerfilSubscriber implements EventSubscriberInterface
             'estadisticas_usuarios_por_mes',
             'estadisticas_top_localidades',
             'estadisticas_perfiles_incompletos',
+            'api/perfiles',
+            'perfil_actualizar',
         ];
 
         if (in_array($rutaActual, $rutasPermitidas, true)) {
