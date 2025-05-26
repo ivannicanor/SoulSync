@@ -70,6 +70,15 @@
     border-radius: 20px;
     cursor: pointer;
 }
+.cargandoMensajes, .sinMensajes {
+    align-self: center;
+    margin: auto;
+    padding: 10px;
+    color: #888;
+    font-style: italic;
+    text-align: center;
+}
+
 
 .menuLateral {
     width: 220px;

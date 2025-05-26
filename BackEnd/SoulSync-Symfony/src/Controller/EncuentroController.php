@@ -132,4 +132,7 @@ class EncuentroController extends AbstractController
 
         return new JsonResponse(array_values($datos)); // Devuelve los valores del array asociativo
     }
+
+
+    
 }

@@ -1,11 +1,15 @@
 "use client";
 
+
 import React, { useState, useEffect } from 'react';
 import estilos from "./chat.module.css";
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { usePerfilGuard } from '@/hooks/usePerfilGuard';
 
+
 // Mensajes de ejemplo para cada chat
+
+
 
 
 const ChatVista: React.FC = () => {
@@ -19,10 +23,10 @@ const ChatVista: React.FC = () => {
   const [cargandoMensajes, setCargandoMensajes] = useState(false);
   const [encuentroActivo, setEncuentroActivo] = useState<number | null>(null);
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
-  
+ 
   const autenticado = useAuthGuard();
   const perfilCreado = usePerfilGuard();
-  
+ 
   useEffect(() => {
     const cargarPerfiles = async () => {
       try {
@@ -41,6 +45,7 @@ const ChatVista: React.FC = () => {
         console.log('ID del usuario:', id);
         setUsuarioId(id);
 
+
         // Luego obtenemos los matches con ese ID (con_nombre con la persona que tiene el match , el id del encuentro, la fecha y usuario usuario_id)
         const resUsuarios = await fetch(`http://localhost:8000/encuentros/usuarioMatch/${id}`, {
           headers: {
@@ -49,6 +54,7 @@ const ChatVista: React.FC = () => {
         });
          
         const matches = await resUsuarios.json();
+
 
  
         if (Array.isArray(matches) && matches.length > 0) {
@@ -78,6 +84,7 @@ const ChatVista: React.FC = () => {
     }
   }, [autenticado, perfilCreado]);
 
+
   // Función para cargar mensajes de un encuentro (obtenemos el chat de un encuentro mensajes entre las 2 personas)
   const cargarMensajes = async (encuentroId: number) => {
     setCargandoMensajes(true);
@@ -85,14 +92,16 @@ const ChatVista: React.FC = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
+
       const resMensajes = await fetch(`http://localhost:8000/mensajes/encuentro/${encuentroId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+
       const mensajesData = await resMensajes.json();
-      
+     
       if (Array.isArray(mensajesData)) {
         // Transformar formato de mensajes del API al formato de la UI
         const mensajesFormateados = mensajesData.map(msg => ({
@@ -101,7 +110,7 @@ const ChatVista: React.FC = () => {
           // Si el remitente_id es el mismo que el usuario actual, es "yo", si no es "otro"
           emisor: msg.remitente_id === usuarioId ? "yo" : "otro"
         }));
-        
+       
         setMensajes(mensajesFormateados);
       } else {
         setMensajes([]);
@@ -114,6 +123,7 @@ const ChatVista: React.FC = () => {
     }
   };
 
+
   const cambiarChat = (nombre: string, encuentroId: number) => {
     setChatActivo(nombre);
     setEncuentroActivo(encuentroId);
@@ -121,8 +131,10 @@ const ChatVista: React.FC = () => {
     setNuevoMensaje("");
   };
 
+
   const enviarMensaje = async () => {
     if (nuevoMensaje.trim() === "" || !encuentroActivo || !usuarioId) return;
+
 
     // Primero añadimos el mensaje a la UI para feedback inmediato
     const nuevoMensajeObj = {
@@ -131,13 +143,16 @@ const ChatVista: React.FC = () => {
       emisor: "yo",
     };
 
+
     setMensajes(prev => [...prev, nuevoMensajeObj]);
     const textoMensaje = nuevoMensaje;
     setNuevoMensaje("");
 
+
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
+
 
       // Luego enviamos al servidor
       await fetch('http://localhost:8000/mensajes', {
@@ -153,6 +168,7 @@ const ChatVista: React.FC = () => {
         }),
       });
 
+
       // Opcionalmente, podríamos recargar los mensajes desde el servidor
       // para asegurarnos de tener la versión más actualizada
       // cargarMensajes(encuentroActivo);
@@ -160,6 +176,7 @@ const ChatVista: React.FC = () => {
       console.error('Error enviando mensaje:', error);
     }
   };
+
 
   return (
     <div className={estilos.contenedorPrincipal}>
@@ -185,6 +202,7 @@ const ChatVista: React.FC = () => {
         )}
       </div>
 
+
       {/* VISTA DEL CHAT */}
       <div className={estilos.chatVista}>
         <div className={estilos.mensajes}>
@@ -208,6 +226,7 @@ const ChatVista: React.FC = () => {
           )}
         </div>
 
+
         <div className={estilos.inputContainer}>
           <input
             type="text"
@@ -224,5 +243,6 @@ const ChatVista: React.FC = () => {
     </div>
   );
 };
+
 
 export default ChatVista;

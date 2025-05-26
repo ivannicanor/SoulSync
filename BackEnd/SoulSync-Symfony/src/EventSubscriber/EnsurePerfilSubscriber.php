@@ -59,6 +59,14 @@ class EnsurePerfilSubscriber implements EventSubscriberInterface
             'estadisticas_perfiles_incompletos',
             'api/perfiles',
             'perfil_actualizar',
+            'mensaje_',
+            'mensaje_ver_por_encuentro',
+            'encuentro_',
+            'encuentro_ver_por_usuario',
+            'encuentro_ver_por_usuario_Matches',
+            'mensaje_crear',
+            'like_crear',
+
         ];
 
         if (in_array($rutaActual, $rutasPermitidas, true)) {
