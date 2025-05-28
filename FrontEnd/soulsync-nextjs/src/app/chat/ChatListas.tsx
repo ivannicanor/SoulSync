@@ -1,17 +1,13 @@
 "use client";
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import estilos from "./chat.module.css";
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { usePerfilGuard } from '@/hooks/usePerfilGuard';
 
 
 // Mensajes de ejemplo para cada chat
-
-
-
-
 const ChatVista: React.FC = () => {
   const [perfiles, setPerfiles] = useState<any[]>([]);
   const [indice, setIndice] = useState(0);
@@ -23,7 +19,8 @@ const ChatVista: React.FC = () => {
   const [cargandoMensajes, setCargandoMensajes] = useState(false);
   const [encuentroActivo, setEncuentroActivo] = useState<number | null>(null);
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
- 
+  const [ultimoMensajeId, setUltimoMensajeId] = useState<number>(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const autenticado = useAuthGuard();
   const perfilCreado = usePerfilGuard();
  
@@ -82,8 +79,79 @@ const ChatVista: React.FC = () => {
     if (autenticado && perfilCreado) {
       cargarPerfiles();
     }
+
+    // Limpiar el intervalo cuando el componente se desmonte
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, [autenticado, perfilCreado]);
 
+  // Efecto para manejar el polling de mensajes nuevos
+  useEffect(() => {
+    if (encuentroActivo === null || !usuarioId) return;
+
+    // Iniciar el intervalo para verificar mensajes nuevos
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    // Establecer un intervalo para verificar mensajes cada 10 segundos
+    intervalRef.current = setInterval(() => {
+      verificarNuevosMensajes(encuentroActivo);
+    }, 10000);
+
+    // Limpiar el intervalo cuando cambie el encuentro activo o al desmontar
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [encuentroActivo, usuarioId]);
+
+  // Función para verificar si hay mensajes nuevos sin mostrar carga
+  const verificarNuevosMensajes = async (encuentroId: number) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const resMensajes = await fetch(`http://localhost:8000/mensajes/encuentro/${encuentroId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const mensajesData = await resMensajes.json();
+     
+      if (Array.isArray(mensajesData) && mensajesData.length > 0) {
+        // Buscar si hay mensajes nuevos del otro usuario
+        const mensajesNuevos = mensajesData.filter(msg => 
+          msg.remitente_id !== usuarioId && msg.id > ultimoMensajeId
+        );
+
+        // Si hay mensajes nuevos del otro usuario, actualizar la lista completa
+        if (mensajesNuevos.length > 0) {
+          console.log('Se encontraron nuevos mensajes del otro usuario, actualizando chat');
+          
+          // Actualizar el último ID de mensaje
+          const maxId = Math.max(...mensajesData.map(msg => msg.id));
+          setUltimoMensajeId(maxId);
+          
+          // Transformar formato de mensajes del API al formato de la UI
+          const mensajesFormateados = mensajesData.map(msg => ({
+            id: msg.id,
+            texto: msg.contenido,
+            emisor: msg.remitente_id === usuarioId ? "yo" : "otro"
+          }));
+         
+          setMensajes(mensajesFormateados);
+        }
+      }
+    } catch (error) {
+      console.error('Error verificando mensajes nuevos:', error);
+    }
+  };
 
   // Función para cargar mensajes de un encuentro (obtenemos el chat de un encuentro mensajes entre las 2 personas)
   const cargarMensajes = async (encuentroId: number) => {
@@ -103,6 +171,12 @@ const ChatVista: React.FC = () => {
       const mensajesData = await resMensajes.json();
      
       if (Array.isArray(mensajesData)) {
+        // Encontrar el ID de mensaje más alto para el seguimiento
+        if (mensajesData.length > 0) {
+          const maxId = Math.max(...mensajesData.map(msg => msg.id));
+          setUltimoMensajeId(maxId);
+        }
+
         // Transformar formato de mensajes del API al formato de la UI
         const mensajesFormateados = mensajesData.map(msg => ({
           id: msg.id,
@@ -114,6 +188,7 @@ const ChatVista: React.FC = () => {
         setMensajes(mensajesFormateados);
       } else {
         setMensajes([]);
+        setUltimoMensajeId(0);
       }
     } catch (error) {
       console.error('Error cargando mensajes:', error);
@@ -155,7 +230,7 @@ const ChatVista: React.FC = () => {
 
 
       // Luego enviamos al servidor
-      await fetch('http://localhost:8000/mensajes', {
+      const response = await fetch('http://localhost:8000/mensajes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -168,10 +243,15 @@ const ChatVista: React.FC = () => {
         }),
       });
 
-
-      // Opcionalmente, podríamos recargar los mensajes desde el servidor
-      // para asegurarnos de tener la versión más actualizada
-      // cargarMensajes(encuentroActivo);
+      // Si la respuesta es exitosa, actualizamos el último ID de mensaje
+      if (response.ok) {
+        const mensajeCreado = await response.json();
+        if (mensajeCreado && mensajeCreado.id) {
+          setUltimoMensajeId(Math.max(ultimoMensajeId, mensajeCreado.id));
+        }
+        // Recargar los mensajes para tener los IDs correctos
+        cargarMensajes(encuentroActivo);
+      }
     } catch (error) {
       console.error('Error enviando mensaje:', error);
     }
