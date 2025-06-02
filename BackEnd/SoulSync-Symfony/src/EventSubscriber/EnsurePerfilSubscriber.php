@@ -66,6 +66,7 @@ class EnsurePerfilSubscriber implements EventSubscriberInterface
             'encuentro_ver_por_usuario_Matches',
             'mensaje_crear',
             'like_crear',
+            'usuario_crear'
 
         ];
 
