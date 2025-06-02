@@ -51,6 +51,9 @@ class Perfil
     #[ORM\Column]
     private ?int $rangoEdadMax = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?array $hobbies = null;
+
     public function __construct()
     {
        
@@ -196,6 +199,18 @@ class Perfil
     public function setRangoEdadMax(int $rangoEdadMax): static
     {
         $this->rangoEdadMax = $rangoEdadMax;
+
+        return $this;
+    }
+
+    public function getHobbies(): ?array
+    {
+        return $this->hobbies;
+    }
+
+    public function setHobbies(?array $hobbies): static
+    {
+        $this->hobbies = $hobbies;
 
         return $this;
     }

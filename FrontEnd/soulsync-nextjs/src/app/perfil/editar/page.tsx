@@ -4,6 +4,8 @@ import LoadingScreen from '@/app/ui/LoadingScreen';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import styles from '../crear/crearPerfil.module.css';
+import hobbiesData from '../hobbies.json';
 
 export default function EditarPerfil() {
   const [perfil, setPerfil] = useState<any>(null);
@@ -12,6 +14,13 @@ export default function EditarPerfil() {
   const [mensaje, setMensaje] = useState('');
   const router = useRouter();
   const autenticado = useAuthGuard();
+
+  const [mostrarPopupHobbies, setMostrarPopupHobbies] = useState(false);
+  const [hobbiesSeleccionados, setHobbiesSeleccionados] = useState<string[]>([]);
+  const [contadorHobbies, setContadorHobbies] = useState(0);
+  const MAX_HOBBIES = hobbiesData.maxHobbies;
+  
+  const opcionesHobbies = hobbiesData.hobbies;
 
   // Redirección segura si no está autenticado
   useEffect(() => {
@@ -33,6 +42,12 @@ export default function EditarPerfil() {
       if (data.datos) {
         setPerfil(data.datos);
         setForm(data.datos);
+        
+        // Inicializar hobbies si existen
+        if (data.datos.hobbies && Array.isArray(data.datos.hobbies)) {
+          setHobbiesSeleccionados(data.datos.hobbies);
+          setContadorHobbies(data.datos.hobbies.length);
+        }
       }
     };
 
@@ -50,9 +65,37 @@ export default function EditarPerfil() {
     setEditado(true);
   };
 
+  const toggleHobby = (hobby: string) => {
+    if (hobbiesSeleccionados.includes(hobby)) {
+      // Si ya está seleccionado, lo quitamos
+      setHobbiesSeleccionados(hobbiesSeleccionados.filter(h => h !== hobby));
+      setContadorHobbies(prev => prev - 1);
+    } else if (contadorHobbies < MAX_HOBBIES) {
+      // Si no está seleccionado y no hemos llegado al máximo, lo añadimos
+      setHobbiesSeleccionados([...hobbiesSeleccionados, hobby]);
+      setContadorHobbies(prev => prev + 1);
+    }
+    setEditado(true);
+  };
+
+  const guardarHobbies = () => {
+    setForm((prev: any) => ({
+      ...prev,
+      hobbies: hobbiesSeleccionados
+    }));
+    setMostrarPopupHobbies(false);
+    setEditado(true);
+  };
+
   const guardarCambios = async () => {
     const token = localStorage.getItem('token');
     if (!token || !perfil?.id) return;
+
+    // Asegurarse de que los hobbies estén incluidos en el formulario
+    const formData = {
+      ...form,
+      hobbies: hobbiesSeleccionados
+    };
 
     const res = await fetch(`http://localhost:8000/api/perfiles/${perfil.id}`, {
       method: 'PUT',
@@ -60,7 +103,7 @@ export default function EditarPerfil() {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(form),
+      body: JSON.stringify(formData),
     });
 
     if (res.ok) {
@@ -124,6 +167,24 @@ export default function EditarPerfil() {
             className="border p-2 rounded w-full"
           />
         </div>
+
+        <div className={styles.interesesContainer}>
+          <h3>Intereses</h3>
+          <button 
+            type="button" 
+            className={styles.botonIntereses}
+            onClick={() => setMostrarPopupHobbies(true)}
+          >
+            + Añadir intereses
+          </button>
+          {hobbiesSeleccionados.length > 0 && (
+            <div className={styles.hobbiesSeleccionadosContainer}>
+              {hobbiesSeleccionados.map(hobby => (
+                <span key={hobby} className={styles.hobbieTag}>{hobby}</span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <button
@@ -134,6 +195,45 @@ export default function EditarPerfil() {
       >
         Guardar
       </button>
+
+      {mostrarPopupHobbies && (
+        <div className={styles.popupOverlay}>
+          <div className={styles.popupContainer}>
+            <div className={styles.popupHeader}>
+              <h2>¿Cuál es tu rollo?</h2>
+              <button 
+                type="button" 
+                className={styles.closeButton}
+                onClick={() => setMostrarPopupHobbies(false)}
+              >
+                ×
+              </button>
+            </div>
+            <p className={styles.popupSubtitle}>Para gustos, colores. ¡Cuéntanos lo que te va a ti!</p>
+            
+            <div className={styles.hobbiesGrid}>
+              {opcionesHobbies.map(hobby => (
+                <button
+                  key={hobby}
+                  type="button"
+                  className={`${styles.hobbyOption} ${hobbiesSeleccionados.includes(hobby) ? styles.selected : ''}`}
+                  onClick={() => toggleHobby(hobby)}
+                >
+                  {hobby}
+                </button>
+              ))}
+            </div>
+            
+            <button 
+              type="button" 
+              className={styles.guardarButton}
+              onClick={guardarHobbies}
+            >
+              Guardar ({contadorHobbies}/{MAX_HOBBIES})
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -66,6 +66,9 @@ class PerfilController extends AbstractController
             }
             $perfil->setPreferenciaSexual($datos['preferencia_sexual']);
         }
+        if (isset($datos['hobbies'])) {
+            $perfil->setHobbies($datos['hobbies']);
+        }
 
         if (isset($datos['rango_edad_min']) && isset($datos['rango_edad_max'])) {
             if ($datos['rango_edad_min'] >= $datos['rango_edad_max']) {
@@ -108,6 +111,7 @@ class PerfilController extends AbstractController
                 'rangoEdadMin' => $perfil->getRangoEdadMin(),
                 'rangoEdadMax' => $perfil->getRangoEdadMax(),
                 'biografia' => $perfil->getBiografia(),
+                'hobbies' => $perfil->getHobbies(),
             ]
         ]);
     }
@@ -134,6 +138,7 @@ class PerfilController extends AbstractController
         $perfil->setPreferenciaSexual($data['preferenciaSexual'] ?? '');
         $perfil->setRangoEdadMin((int) $data['rangoEdadMin']);
         $perfil->setRangoEdadMax((int) $data['rangoEdadMax']);
+        $perfil->setHobbies($data['hobbies'] ?? null);
 
         $em->persist($perfil);
         $em->flush();
