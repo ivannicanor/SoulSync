@@ -158,4 +158,21 @@ public function mostrar(int $id, EntityManagerInterface $em): Response
 
         return new JsonResponse(['mensaje' => 'Foto eliminada correctamente']);
     }
+
+    #[Route('/borrarFotos/{perfilId}', name: 'borrar_fotos_perfil', methods: ['DELETE'])]
+public function borrarFotosPerfil(int $perfilId, EntityManagerInterface $em): JsonResponse
+{
+    $fotos = $em->getRepository(Foto::class)->findBy(['perfil' => $perfilId]);
+
+    if (!$fotos) {
+        return new JsonResponse(['error' => 'No se encontraron fotos para ese perfil'], 404);
+    }
+
+    foreach ($fotos as $foto) {
+        $em->remove($foto);
+    }
+    $em->flush();
+
+    return new JsonResponse(['mensaje' => 'Fotos del perfil eliminadas correctamente']);
+}
 }

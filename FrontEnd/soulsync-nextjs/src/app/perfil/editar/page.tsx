@@ -12,6 +12,9 @@ export default function EditarPerfil() {
   const [form, setForm] = useState<any>({});
   const [editado, setEditado] = useState(false);
   const [mensaje, setMensaje] = useState('');
+  const [fotos, setFotos] = useState<File[]>([]);
+  const [vistaPrevia, setVistaPrevia] = useState<string[]>([]);
+  const [fotoPortadaIndex, setFotoPortadaIndex] = useState<number | null>(null);
   const router = useRouter();
   const autenticado = useAuthGuard();
 
@@ -19,10 +22,16 @@ export default function EditarPerfil() {
   const [hobbiesSeleccionados, setHobbiesSeleccionados] = useState<string[]>([]);
   const [contadorHobbies, setContadorHobbies] = useState(0);
   const MAX_HOBBIES = hobbiesData.maxHobbies;
-  
+
   const opcionesHobbies = hobbiesData.hobbies;
 
-  // Redirección segura si no está autenticado
+  useEffect(() => {
+    if (fotos.length > 0) {
+      const previews = fotos.map((foto) => URL.createObjectURL(foto));
+      setVistaPrevia(previews);
+    }
+  }, [fotos]);
+
   useEffect(() => {
     if (autenticado === false) {
       router.push('/login');
@@ -42,8 +51,7 @@ export default function EditarPerfil() {
       if (data.datos) {
         setPerfil(data.datos);
         setForm(data.datos);
-        
-        // Inicializar hobbies si existen
+
         if (data.datos.hobbies && Array.isArray(data.datos.hobbies)) {
           setHobbiesSeleccionados(data.datos.hobbies);
           setContadorHobbies(data.datos.hobbies.length);
@@ -56,7 +64,9 @@ export default function EditarPerfil() {
     }
   }, [autenticado]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setForm((prev: any) => ({
       ...prev,
@@ -65,15 +75,20 @@ export default function EditarPerfil() {
     setEditado(true);
   };
 
+  const manejarCambioFotos = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFotos(Array.from(e.target.files));
+      setEditado(true);
+    }
+  };
+
   const toggleHobby = (hobby: string) => {
     if (hobbiesSeleccionados.includes(hobby)) {
-      // Si ya está seleccionado, lo quitamos
-      setHobbiesSeleccionados(hobbiesSeleccionados.filter(h => h !== hobby));
-      setContadorHobbies(prev => prev - 1);
+      setHobbiesSeleccionados(hobbiesSeleccionados.filter((h) => h !== hobby));
+      setContadorHobbies((prev) => prev - 1);
     } else if (contadorHobbies < MAX_HOBBIES) {
-      // Si no está seleccionado y no hemos llegado al máximo, lo añadimos
       setHobbiesSeleccionados([...hobbiesSeleccionados, hobby]);
-      setContadorHobbies(prev => prev + 1);
+      setContadorHobbies((prev) => prev + 1);
     }
     setEditado(true);
   };
@@ -81,7 +96,7 @@ export default function EditarPerfil() {
   const guardarHobbies = () => {
     setForm((prev: any) => ({
       ...prev,
-      hobbies: hobbiesSeleccionados
+      hobbies: hobbiesSeleccionados,
     }));
     setMostrarPopupHobbies(false);
     setEditado(true);
@@ -91,10 +106,10 @@ export default function EditarPerfil() {
     const token = localStorage.getItem('token');
     if (!token || !perfil?.id) return;
 
-    // Asegurarse de que los hobbies estén incluidos en el formulario
+    // Actualizar datos del perfil
     const formData = {
       ...form,
-      hobbies: hobbiesSeleccionados
+      hobbies: hobbiesSeleccionados,
     };
 
     const res = await fetch(`http://localhost:8000/api/perfiles/${perfil.id}`, {
@@ -107,6 +122,35 @@ export default function EditarPerfil() {
     });
 
     if (res.ok) {
+      // Primero borrar todas las fotos anteriores del perfil
+      const borrarFotosRes = await fetch(`http://localhost:8000/fotos/borrarFotos/${perfil.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!borrarFotosRes.ok) {
+        setMensaje('Error al borrar fotos anteriores');
+        return;
+      }
+
+      // Luego subir las nuevas fotos
+      for (let i = 0; i < fotos.length; i++) {
+        const data = new FormData();
+        data.append('perfil_id', perfil.id.toString());
+        data.append('foto_portada', i === fotoPortadaIndex ? '1' : '0');
+        data.append('imagen', fotos[i]);
+
+        await fetch('http://localhost:8000/fotos/upload', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: data,
+        });
+      }
+
       setMensaje('Perfil actualizado correctamente ✅');
       setEditado(false);
     } else {
@@ -130,20 +174,54 @@ export default function EditarPerfil() {
       {mensaje && <p className="mb-4 text-sm text-center text-green-600">{mensaje}</p>}
 
       <div className="grid gap-4">
-        <input name="nombre" value={form.nombre || ''} onChange={handleChange} placeholder="Nombre" className="border p-2 rounded w-full" />
-        <input name="edad" type="number" value={form.edad || ''} onChange={handleChange} placeholder="Edad" className="border p-2 rounded w-full" />
+        <input
+          name="nombre"
+          value={form.nombre || ''}
+          onChange={handleChange}
+          placeholder="Nombre"
+          className="border p-2 rounded w-full"
+        />
+        <input
+          name="edad"
+          type="number"
+          value={form.edad || ''}
+          onChange={handleChange}
+          placeholder="Edad"
+          className="border p-2 rounded w-full"
+        />
 
-        <select name="genero" value={form.genero || ''} onChange={handleChange} className="border p-2 rounded w-full">
+        <select
+          name="genero"
+          value={form.genero || ''}
+          onChange={handleChange}
+          className="border p-2 rounded w-full"
+        >
           <option value="">Selecciona tu género</option>
           <option value="hombre">Hombre</option>
           <option value="mujer">Mujer</option>
         </select>
 
-        <textarea name="biografia" value={form.biografia || ''} onChange={handleChange} placeholder="Biografía" className="border p-2 rounded w-full" />
+        <textarea
+          name="biografia"
+          value={form.biografia || ''}
+          onChange={handleChange}
+          placeholder="Biografía"
+          className="border p-2 rounded w-full"
+        />
+        <input
+          name="ubicacion"
+          value={form.ubicacion || ''}
+          onChange={handleChange}
+          placeholder="Ubicación"
+          className="border p-2 rounded w-full"
+        />
 
-        <input name="ubicacion" value={form.ubicacion || ''} onChange={handleChange} placeholder="Ubicación" className="border p-2 rounded w-full" />
-
-        <select name="preferenciaSexual" value={form.preferenciaSexual || ''} onChange={handleChange} className="border p-2 rounded w-full">
+        <select
+          name="preferenciaSexual"
+          value={form.preferenciaSexual || ''}
+          onChange={handleChange}
+          className="border p-2 rounded w-full"
+        >
           <option value="">Preferencia sexual</option>
           <option value="hombres">Hombre</option>
           <option value="mujeres">Mujer</option>
@@ -168,10 +246,32 @@ export default function EditarPerfil() {
           />
         </div>
 
+        <label>Sube tus fotos</label>
+        <input type="file" multiple accept="image/*" onChange={manejarCambioFotos} />
+
+        {vistaPrevia.length > 0 && (
+          <div className={styles.galeria}>
+            {vistaPrevia.map((url, index) => (
+              <div key={index} className={styles.imagenContainer}>
+                <img src={url} alt={`foto-${index}`} className={styles.imagen} />
+                <label>
+                  <input
+                    type="radio"
+                    name="fotoPortada"
+                    checked={fotoPortadaIndex === index}
+                    onChange={() => setFotoPortadaIndex(index)}
+                  />
+                  Portada
+                </label>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className={styles.interesesContainer}>
           <h3>Intereses</h3>
-          <button 
-            type="button" 
+          <button
+            type="button"
             className={styles.botonIntereses}
             onClick={() => setMostrarPopupHobbies(true)}
           >
@@ -179,8 +279,10 @@ export default function EditarPerfil() {
           </button>
           {hobbiesSeleccionados.length > 0 && (
             <div className={styles.hobbiesSeleccionadosContainer}>
-              {hobbiesSeleccionados.map(hobby => (
-                <span key={hobby} className={styles.hobbieTag}>{hobby}</span>
+              {hobbiesSeleccionados.map((hobby) => (
+                <span key={hobby} className={styles.hobbieTag}>
+                  {hobby}
+                </span>
               ))}
             </div>
           )}
@@ -190,8 +292,9 @@ export default function EditarPerfil() {
       <button
         onClick={guardarCambios}
         disabled={!editado}
-        className={`mt-6 w-full p-2 rounded text-white font-bold transition ${editado ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'
-          }`}
+        className={`mt-6 w-full p-2 rounded text-white font-bold transition ${
+          editado ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'
+        }`}
       >
         Guardar
       </button>
@@ -201,31 +304,35 @@ export default function EditarPerfil() {
           <div className={styles.popupContainer}>
             <div className={styles.popupHeader}>
               <h2>¿Cuál es tu rollo?</h2>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className={styles.closeButton}
                 onClick={() => setMostrarPopupHobbies(false)}
               >
                 ×
               </button>
             </div>
-            <p className={styles.popupSubtitle}>Para gustos, colores. ¡Cuéntanos lo que te va a ti!</p>
-            
+            <p className={styles.popupSubtitle}>
+              Para gustos, colores. ¡Cuéntanos lo que te va a ti!
+            </p>
+
             <div className={styles.hobbiesGrid}>
-              {opcionesHobbies.map(hobby => (
+              {opcionesHobbies.map((hobby) => (
                 <button
                   key={hobby}
                   type="button"
-                  className={`${styles.hobbyOption} ${hobbiesSeleccionados.includes(hobby) ? styles.selected : ''}`}
+                  className={`${styles.hobbyOption} ${
+                    hobbiesSeleccionados.includes(hobby) ? styles.selected : ''
+                  }`}
                   onClick={() => toggleHobby(hobby)}
                 >
                   {hobby}
                 </button>
               ))}
             </div>
-            
-            <button 
-              type="button" 
+
+            <button
+              type="button"
               className={styles.guardarButton}
               onClick={guardarHobbies}
             >

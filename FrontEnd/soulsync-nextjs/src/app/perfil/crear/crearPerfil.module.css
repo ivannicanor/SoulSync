@@ -92,7 +92,7 @@
   height: 100px;
   object-fit: cover;
   border-radius: 8px;
-
+}
 /* Estilos para la sección de intereses */
 .interesesContainer {
   display: flex;
