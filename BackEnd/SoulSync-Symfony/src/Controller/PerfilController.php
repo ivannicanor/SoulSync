@@ -138,7 +138,8 @@ class PerfilController extends AbstractController
         $em->persist($perfil);
         $em->flush();
 
-        return new JsonResponse(['mensaje' => 'Perfil creado'], 201);
+        return new JsonResponse(['mensaje' => 'Perfil creado',
+                                        'id' => $perfil->getId()], 201);
     }
 
 }

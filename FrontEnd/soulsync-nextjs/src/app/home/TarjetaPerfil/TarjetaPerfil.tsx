@@ -1,53 +1,74 @@
-"use client";
-
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import estilos from "../estilos.module.css";
 
-/**
- * ✅ Interfaz que define las propiedades del componente.
- */
+interface Foto {
+  id: number;
+  url: string;
+  fotoPortada: boolean;
+  mimeType: string;
+}
+
 interface TarjetaPerfilProps {
   nombre: string;
   edad: number;
   ubicacion: string;
-  foto: string;
+  fotos: Foto[];
   biografia: string;
   alDarLike: () => void;
   alDarDislike: () => void;
   alDarSuperLike: () => void;
 }
 
-/**
- * ✅ Componente de la tarjeta del perfil.
- * Muestra la información del perfil y permite arrastrar para interactuar.
- */
 const TarjetaPerfil: React.FC<TarjetaPerfilProps> = ({
   nombre,
   edad,
   ubicacion,
-  foto,
+  fotos,
   biografia,
   alDarLike,
   alDarDislike,
   alDarSuperLike,
 }) => {
-  // Control de animaciones de Framer Motion
   const controls = useAnimation();
+  const [fotoUrl, setFotoUrl] = useState<string>("");
 
-  /**
-   * 👉 Cuando el componente cambia de datos, resetea la animación.
-   */
+  // Buscar la foto portada o la primera si no hay portada
+  const fotoPortada = fotos.find(f => f.fotoPortada) || fotos[0];
+
+  useEffect(() => {
+    if (!fotoPortada) {
+      setFotoUrl("");
+      return;
+    }
+
+    const fetchFoto = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/fotos/mostrar/${fotoPortada.id}`);
+        if (!response.ok) throw new Error("Error al cargar imagen");
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        setFotoUrl(url);
+      } catch (error) {
+        console.error(error);
+        setFotoUrl("");
+      }
+    };
+
+    fetchFoto();
+
+    return () => {
+      if (fotoUrl) {
+        URL.revokeObjectURL(fotoUrl);
+      }
+    };
+  }, [fotoPortada]);
+
   useEffect(() => {
     controls.start({ x: 0, y: 0, opacity: 1 });
-  }, [nombre, edad, ubicacion, biografia, foto, controls]);
+  }, [nombre, edad, ubicacion, biografia, fotoPortada, controls]);
 
-  /**
-   * ✅ Detecta el arrastre de la tarjeta y ejecuta la acción correspondiente.
-   * - Si se arrastra a la derecha → Like
-   * - Si se arrastra a la izquierda → Dislike
-   * - Si se arrastra hacia arriba → Super Like
-   */
   const manejarArrastre = (event: any, info: any) => {
     if (info.offset.x > 150) {
       controls.start({ x: 500, opacity: 0 });
@@ -72,7 +93,11 @@ const TarjetaPerfil: React.FC<TarjetaPerfilProps> = ({
       transition={{ duration: 0.3 }}
     >
       <div className={estilos.contenedorTarjeta}>
-        <img src={foto} alt={nombre} className={estilos.foto} />
+        {fotoUrl ? (
+          <img src={fotoUrl} alt={nombre} className={estilos.foto} />
+        ) : (
+          <div className={estilos.foto}>Cargando imagen...</div>
+        )}
         <div className={estilos.detalles}>
           <h2>
             {nombre}, {edad}
