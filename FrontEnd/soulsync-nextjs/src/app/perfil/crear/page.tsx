@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import estilos from './crearPerfil.module.css';
 import LoadingScreen from '@/app/ui/LoadingScreen';
+import hobbiesData from '../hobbies.json';
 
 const CrearPerfil = () => {
   const router = useRouter();
@@ -19,12 +20,21 @@ const CrearPerfil = () => {
     preferenciaSexual: '',
     rangoEdadMin: 18,
     rangoEdadMax: 35,
+    foto: '',
+    hobbies: [] as string[],
   });
 
   const [fotos, setFotos] = useState<File[]>([]);
   const [vistaPrevia, setVistaPrevia] = useState<string[]>([]);
   const [fotoPortadaIndex, setFotoPortadaIndex] = useState<number | null>(null);
   const [mensaje, setMensaje] = useState('');
+  const [mostrarPopupHobbies, setMostrarPopupHobbies] = useState(false);
+  
+  const opcionesHobbies = hobbiesData.hobbies;
+  const MAX_HOBBIES = hobbiesData.maxHobbies;
+
+  const [hobbiesSeleccionados, setHobbiesSeleccionados] = useState<string[]>([]);
+  const [contadorHobbies, setContadorHobbies] = useState(0);
 
   useEffect(() => {
     if (fotos.length > 0) {
@@ -44,10 +54,32 @@ const CrearPerfil = () => {
     setFormulario((prev) => ({ ...prev, [name]: value }));
   };
 
+
   const manejarCambioFotos = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFotos(Array.from(e.target.files));
     }
+  };
+
+
+  const toggleHobby = (hobby: string) => {
+    if (hobbiesSeleccionados.includes(hobby)) {
+      // Si ya está seleccionado, lo quitamos
+      setHobbiesSeleccionados(hobbiesSeleccionados.filter(h => h !== hobby));
+      setContadorHobbies(contadorHobbies - 1);
+    } else if (contadorHobbies < MAX_HOBBIES) {
+      // Si no está seleccionado y no hemos llegado al máximo, lo añadimos
+      setHobbiesSeleccionados([...hobbiesSeleccionados, hobby]);
+      setContadorHobbies(contadorHobbies + 1);
+    }
+  };
+
+  const guardarHobbies = () => {
+    setFormulario(prev => ({
+      ...prev,
+      hobbies: hobbiesSeleccionados
+    }));
+    setMostrarPopupHobbies(false);
   };
 
   const manejarEnvio = async (e: React.FormEvent) => {
@@ -162,9 +194,66 @@ const CrearPerfil = () => {
           </div>
         )}
 
+        <div className={estilos.interesesContainer}>
+          <h3>Intereses</h3>
+          <button 
+            type="button" 
+            className={estilos.botonIntereses}
+            onClick={() => setMostrarPopupHobbies(true)}
+          >
+            + Añadir intereses
+          </button>
+          {hobbiesSeleccionados.length > 0 && (
+            <div className={estilos.hobbiesSeleccionadosContainer}>
+              {hobbiesSeleccionados.map(hobby => (
+                <span key={hobby} className={estilos.hobbieTag}>{hobby}</span>
+              ))}
+            </div>
+          )}
+        </div>
+
         <button type="submit">Crear perfil</button>
         {mensaje && <p>{mensaje}</p>}
       </form>
+
+      {mostrarPopupHobbies && (
+        <div className={estilos.popupOverlay}>
+          <div className={estilos.popupContainer}>
+            <div className={estilos.popupHeader}>
+              <h2>¿Cuál es tu rollo?</h2>
+              <button 
+                type="button" 
+                className={estilos.closeButton}
+                onClick={() => setMostrarPopupHobbies(false)}
+              >
+                ×
+              </button>
+            </div>
+            <p className={estilos.popupSubtitle}>Para gustos, colores. ¡Cuéntanos lo que te va a ti!</p>
+            
+            <div className={estilos.hobbiesGrid}>
+              {opcionesHobbies.map(hobby => (
+                <button
+                  key={hobby}
+                  type="button"
+                  className={`${estilos.hobbyOption} ${hobbiesSeleccionados.includes(hobby) ? estilos.selected : ''}`}
+                  onClick={() => toggleHobby(hobby)}
+                >
+                  {hobby}
+                </button>
+              ))}
+            </div>
+            
+            <button 
+              type="button" 
+              className={estilos.guardarButton}
+              onClick={guardarHobbies}
+            >
+              Guardar ({contadorHobbies}/{MAX_HOBBIES})
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
