@@ -74,7 +74,8 @@ class EnsurePerfilSubscriber implements EventSubscriberInterface
             'foto_ver_por_perfil',
             'foto_eliminar',
             'foto_mostrar_foto',
-            'usuario_crear'
+            'usuario_crear',
+            'foto_borrar_fotos_perfil',
 
 
 
