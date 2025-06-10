@@ -23,6 +23,9 @@ class Like
     #[ORM\Column]
     private ?\DateTimeImmutable $fecha = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $booleanLike = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +63,18 @@ class Like
     public function setFecha(\DateTimeImmutable $fecha): static
     {
         $this->fecha = $fecha;
+
+        return $this;
+    }
+
+    public function isBooleanLike(): ?bool
+    {
+        return $this->booleanLike;
+    }
+
+    public function setBooleanLike(?bool $booleanLike): static
+    {
+        $this->booleanLike = $booleanLike;
 
         return $this;
     }
