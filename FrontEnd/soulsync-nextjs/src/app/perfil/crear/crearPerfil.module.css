@@ -55,6 +55,44 @@
   text-align: center;
 }
 
+
+.contenedor {
+  max-width: 600px;
+  margin: auto;
+  padding: 1rem;
+}
+
+.titulo {
+  text-align: center;
+}
+
+.formulario input,
+.formulario select,
+.formulario textarea {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+}
+
+.galeria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.imagenContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.imagen {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+
 /* Estilos para la sección de intereses */
 .interesesContainer {
   display: flex;
@@ -201,4 +239,5 @@
 
 .guardarButton:hover {
   background-color: #e91e63;
+
 }

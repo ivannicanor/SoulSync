@@ -81,15 +81,28 @@ public function listarTodos(int $id, EntityManagerInterface $em): JsonResponse
     $resultados = $qb->getQuery()->getResult();
 
     $sugerencias = [];
+    $fotos = [];
 
     foreach ($resultados as $perfil) {
+        // Obtener las fotos del perfil
+        $fotos = $perfil->getFotos()->map(function($foto) {
+            return [
+                'id' => $foto->getId(),
+                'url' => $foto->getUrl(),
+                'fotoPortada' => $foto->isFotoPortada(),
+                //'datos' => $foto->getDatos(),
+                'mimeType' => $foto->getMimeType()
+            ];
+        })->toArray();
+
         $sugerencias[] = [
             'id' => $perfil->getId(),
             'nombre' => $perfil->getNombre(),
             'edad' => $perfil->getEdad(),
             'genero' => $perfil->getGenero(),
             'ubicacion' => $perfil->getUbicacion(),
-            'biografia' => $perfil->getBiografia()
+            'biografia' => $perfil->getBiografia(),
+            'fotos' => $fotos
         ];
     }
 
