@@ -24,6 +24,7 @@ class LikeController extends AbstractController
 
         $origenId = $datos['usuario_origen'] ?? null;
         $destinoId = $datos['usuario_destino'] ?? null;
+        $booleanLike = $datos['booleanLike'] ?? null;
 
         if (!$origenId || !$destinoId) {
             return new JsonResponse(['error' => 'Faltan datos obligatorios'], 400);
@@ -55,6 +56,7 @@ class LikeController extends AbstractController
         $like->setUsuarioOrigen($usuarioOrigen);
         $like->setUsuarioDestino($usuarioDestino);
         $like->setFecha(new \DateTimeImmutable());
+        $like->setBooleanLike($booleanLike);
 
         $em->persist($like);
 

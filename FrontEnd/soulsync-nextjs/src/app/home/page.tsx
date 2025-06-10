@@ -16,6 +16,7 @@ const Home = () => {
   const [indice, setIndice] = useState(0);
   const [sinPerfiles, setSinPerfiles] = useState(false);
   const [cargando, setCargando] = useState(true);
+  const [idUsuarioActual, setIdUsuarioActual] = useState<number | null>(null);
 
   useEffect(() => {
     const cargarPerfiles = async () => {
@@ -32,6 +33,8 @@ const Home = () => {
 
         const miPerfil = await resMiPerfil.json();
         const id = miPerfil.datos.id;
+        const idUser = miPerfil.datos.usuarioId;
+        setIdUsuarioActual(idUser);
         console.log('ID del perfil:', id);
 
         // Luego obtenemos sugerencias con ese ID
@@ -77,18 +80,63 @@ const Home = () => {
     }
   };
 
-  const manejarLike = () => {
-    alert('Has dado Like a ' + perfiles[indice].nombre);
+  const manejarLike = async () => {
+    if (!idUsuarioActual) {
+      alert('No se pudo obtener tu usuario.');
+      return;
+    }
+    const usuarioDestinoId = perfiles[indice].usuarioId;
+    if (!usuarioDestinoId) {
+      alert('No se pudo obtener el usuario destino.');
+      return;
+    }
+    const token = localStorage.getItem('token');
+    try {
+      await fetch('http://localhost:8000/likes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          usuario_origen: idUsuarioActual,
+          usuario_destino: usuarioDestinoId,
+          booleanLike: true,
+        }),
+      });
+    } catch (error) {
+      console.error('Error enviando like:', error);
+    }
     siguientePerfil();
   };
 
-  const manejarDislike = () => {
-    alert('Has dado Dislike a ' + perfiles[indice].nombre);
-    siguientePerfil();
-  };
-
-  const manejarSuperLike = () => {
-    alert('Has dado Super Like a ' + perfiles[indice].nombre);
+  const manejarDislike = async () => {
+    if (!idUsuarioActual) {
+      alert('No se pudo obtener tu usuario.');
+      return;
+    }
+    const usuarioDestinoId = perfiles[indice].usuarioId;
+    if (!usuarioDestinoId) {
+      alert('No se pudo obtener el usuario destino.');
+      return;
+    }
+    const token = localStorage.getItem('token');
+    try {
+      await fetch('http://localhost:8000/likes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          usuario_origen: idUsuarioActual,
+          usuario_destino: usuarioDestinoId,
+          booleanLike: false,
+        }),
+      });
+    } catch (error) {
+      console.error('Error enviando dislike:', error);
+    }
     siguientePerfil();
   };
 
@@ -107,12 +155,10 @@ const Home = () => {
               {...perfiles[indice]}
               alDarLike={manejarLike}
               alDarDislike={manejarDislike}
-              alDarSuperLike={manejarSuperLike}
             />
             <ControlesPerfil
               onLike={manejarLike}
               onDislike={manejarDislike}
-              onSuperLike={manejarSuperLike}
             />
           </>
         )}

@@ -80,7 +80,8 @@ class SugerenciaController extends AbstractController
             'genero' => $perfil->getGenero(),
             'ubicacion' => $perfil->getUbicacion(),
             'biografia' => $perfil->getBiografia(),
-            'fotos' => $fotos
+            'fotos' => $fotos,
+            'usuarioId' => $perfil->getUsuario() ? $perfil->getUsuario()->getId() : null,
         ];
     }
 
@@ -128,7 +129,8 @@ public function listarTodos(int $id, EntityManagerInterface $em): JsonResponse
             'genero' => $perfil->getGenero(),
             'ubicacion' => $perfil->getUbicacion(),
             'biografia' => $perfil->getBiografia(),
-            'fotos' => $fotos
+            'fotos' => $fotos,
+            'usuarioId' => $perfil->getUsuario() ? $perfil->getUsuario()->getId() : null,
         ];
     }
 

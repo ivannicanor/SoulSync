@@ -17,7 +17,6 @@ interface TarjetaPerfilProps {
   biografia: string;
   alDarLike: () => void;
   alDarDislike: () => void;
-  alDarSuperLike: () => void;
 }
 
 const TarjetaPerfil: React.FC<TarjetaPerfilProps> = ({
@@ -28,7 +27,6 @@ const TarjetaPerfil: React.FC<TarjetaPerfilProps> = ({
   biografia,
   alDarLike,
   alDarDislike,
-  alDarSuperLike,
 }) => {
   const controls = useAnimation();
   const [fotoUrl, setFotoUrl] = useState<string>("");
@@ -76,9 +74,6 @@ const TarjetaPerfil: React.FC<TarjetaPerfilProps> = ({
     } else if (info.offset.x < -150) {
       controls.start({ x: -500, opacity: 0 });
       setTimeout(() => alDarDislike(), 300);
-    } else if (info.offset.y < -150) {
-      controls.start({ y: -500, opacity: 0 });
-      setTimeout(() => alDarSuperLike(), 300);
     }
   };
 
