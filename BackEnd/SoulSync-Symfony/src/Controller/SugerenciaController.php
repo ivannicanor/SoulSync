@@ -25,6 +25,14 @@ class SugerenciaController extends AbstractController
         $rangoMin = $miPerfil->getRangoEdadMin();
         $rangoMax = $miPerfil->getRangoEdadMax();
         $ubicacion = $miPerfil->getUbicacion();
+        $usuarioActual = $miPerfil->getUsuario();
+
+        if ($preferencia == "hombres") {
+            $preferencia = "hombre";
+        }
+        if ($preferencia == "mujeres") {
+            $preferencia = "mujer";
+        }
 
         $qb = $em->createQueryBuilder();
 
@@ -42,26 +50,44 @@ class SugerenciaController extends AbstractController
             $qb->andWhere('p.ubicacion = :ubicacion')
                ->setParameter('ubicacion', $ubicacion);
         }
+         // Excluir perfiles a los que ya se les ha dado like o dislike
+         $qb->leftJoin('p.usuario', 'u')
+         ->leftJoin('App\\Entity\\Like', 'l', 'WITH', 'l.usuarioOrigen = :usuarioActual AND l.usuarioDestino = u')
+         ->andWhere('l.id IS NULL')
+         ->setParameter('usuarioActual', $usuarioActual);
 
         $resultados = $qb->getQuery()->getResult();
 
         $sugerencias = [];
+        $fotos = [];
 
-        foreach ($resultados as $perfil) {
-            $sugerencias[] = [
-                'id' => $perfil->getId(),
-                'nombre' => $perfil->getNombre(),
-                'edad' => $perfil->getEdad(),
-                'genero' => $perfil->getGenero(),
-                'ubicacion' => $perfil->getUbicacion(),
-                'biografia' => $perfil->getBiografia()
+    foreach ($resultados as $perfil) {
+        // Obtener las fotos del perfil
+        $fotos = $perfil->getFotos()->map(function($foto) {
+            return [
+                'id' => $foto->getId(),
+                'url' => $foto->getUrl(),
+                'fotoPortada' => $foto->isFotoPortada(),
+                //'datos' => $foto->getDatos(),
+                'mimeType' => $foto->getMimeType()
             ];
-        }
+        })->toArray();
+
+        $sugerencias[] = [
+            'id' => $perfil->getId(),
+            'nombre' => $perfil->getNombre(),
+            'edad' => $perfil->getEdad(),
+            'genero' => $perfil->getGenero(),
+            'ubicacion' => $perfil->getUbicacion(),
+            'biografia' => $perfil->getBiografia(),
+            'fotos' => $fotos
+        ];
+    }
 
         return new JsonResponse($sugerencias);
     }
 
-    //RUTA USADA PARA OBTENER SUGERENCIAS DE PERFILES en FRONT!!!
+    //RUTA USADA PARA OBTENER SUGERENCIAS todos los perfiles
     #[Route('/todos/{id}', name: 'listar_todos', methods: ['GET'])]
 public function listarTodos(int $id, EntityManagerInterface $em): JsonResponse
 {

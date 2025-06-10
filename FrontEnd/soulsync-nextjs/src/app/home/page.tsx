@@ -35,7 +35,7 @@ const Home = () => {
         console.log('ID del perfil:', id);
 
         // Luego obtenemos sugerencias con ese ID
-        const resSugerencias = await fetch(`http://localhost:8000/sugerencias/todos/${id}`, {
+        const resSugerencias = await fetch(`http://localhost:8000/sugerencias/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
