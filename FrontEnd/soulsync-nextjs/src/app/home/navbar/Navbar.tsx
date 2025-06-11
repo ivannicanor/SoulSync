@@ -38,13 +38,11 @@ const Navbar: React.FC = () => {
       </Link>
 
       <div className={estilos.enlaces}>
-        <Link href="">
+        <Link href="/chat">
           <button className={estilos.boton}>Matches</button>
         </Link>
 
-        <Link href="">
-          <button className={estilos.boton}>Mensajes</button>
-        </Link>
+       
 
         {esAdmin && (
           <Link href="http://localhost:8000/admin">
