@@ -21,6 +21,7 @@ const ChatVista: React.FC = () => {
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
   const [ultimoMensajeId, setUltimoMensajeId] = useState<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalEncuentrosRef = useRef<NodeJS.Timeout | null>(null);
   const autenticado = useAuthGuard();
   const perfilCreado = usePerfilGuard();
  
@@ -257,6 +258,53 @@ const ChatVista: React.FC = () => {
     }
   };
 
+  // Polling para nuevos encuentros
+  useEffect(() => {
+    if (!usuarioId) return;
+
+    // Limpiar cualquier intervalo anterior
+    if (intervalEncuentrosRef.current) {
+      clearInterval(intervalEncuentrosRef.current);
+    }
+
+    // Función para verificar nuevos encuentros
+    const verificarNuevosEncuentros = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const resUsuarios = await fetch(`http://localhost:8000/encuentros/usuarioMatch/${usuarioId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const matches = await resUsuarios.json();
+        if (Array.isArray(matches)) {
+          // Solo actualiza si hay cambios en la lista de encuentros
+          const idsActuales = perfiles.map(p => p.encuentro_id).sort().join(',');
+          const idsNuevos = matches.map(p => p.encuentro_id).sort().join(',');
+          if (idsActuales !== idsNuevos) {
+            setPerfiles(matches);
+            // Si el chat activo ya no existe, selecciona el primero
+            const existeActivo = matches.some(m => m.con_nombre === chatActivo);
+            if (!existeActivo && matches.length > 0) {
+              setChatActivo(matches[0].con_nombre);
+              setEncuentroActivo(matches[0].encuentro_id);
+              cargarMensajes(matches[0].encuentro_id);
+            }
+          }
+        }
+      } catch (error) {
+        // No hacer nada
+      }
+    };
+
+    intervalEncuentrosRef.current = setInterval(verificarNuevosEncuentros, 10000);
+    return () => {
+      if (intervalEncuentrosRef.current) {
+        clearInterval(intervalEncuentrosRef.current);
+      }
+    };
+  }, [usuarioId, perfiles, chatActivo]);
 
   return (
     <div className={estilos.contenedorPrincipal}>
