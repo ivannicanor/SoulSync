@@ -66,7 +66,8 @@ class LikeController extends AbstractController
             'usuarioDestino' => $usuarioOrigen,
         ]);
 
-        if ($likeMutuo) {
+        // Solo crear el encuentro si ambos likes son true
+        if ($likeMutuo && $likeMutuo->isBooleanLike() === true && $like->isBooleanLike() === true) {
             // Crear el encuentro (match)
             $encuentro = new Encuentro();
             $encuentro->setUsuarioA($usuarioOrigen);
@@ -96,7 +97,6 @@ class LikeController extends AbstractController
 
             return new JsonResponse(['mensaje' => '¡Match creado!', 'encuentro_id' => $encuentro->getId()], 201);
         }
-
 
         // Si no hay match mutuo, solo guardar el like
         $em->flush();
