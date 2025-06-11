@@ -3,11 +3,12 @@
 
 import React from "react";
 import ChatListas from "./ChatListas";
+import Navbar from "../home/navbar/Navbar";
 
 const ChatPage = () => {
   return (
     <div>
-      <h1>Chats Activos</h1>
+      <Navbar />
       <ChatListas />
     </div>
   );
