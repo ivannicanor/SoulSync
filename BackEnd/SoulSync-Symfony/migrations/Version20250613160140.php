@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250602141512 extends AbstractMigration
+final class Version20250613160140 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -27,7 +27,7 @@ final class Version20250602141512 extends AbstractMigration
             CREATE TABLE foto (id INT AUTO_INCREMENT NOT NULL, perfil_id INT DEFAULT NULL, url VARCHAR(255) DEFAULT NULL, foto_portada TINYINT(1) NOT NULL, datos LONGBLOB NOT NULL, mime_type VARCHAR(100) NOT NULL, INDEX IDX_EADC3BE557291544 (perfil_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
         SQL);
         $this->addSql(<<<'SQL'
-            CREATE TABLE `like` (id INT AUTO_INCREMENT NOT NULL, usuario_origen_id INT DEFAULT NULL, usuario_destino_id INT DEFAULT NULL, fecha DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)', INDEX IDX_AC6340B31A6974DF (usuario_origen_id), INDEX IDX_AC6340B317064CB7 (usuario_destino_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
+            CREATE TABLE `like` (id INT AUTO_INCREMENT NOT NULL, usuario_origen_id INT DEFAULT NULL, usuario_destino_id INT DEFAULT NULL, fecha DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)', boolean_like TINYINT(1) DEFAULT NULL, INDEX IDX_AC6340B31A6974DF (usuario_origen_id), INDEX IDX_AC6340B317064CB7 (usuario_destino_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
         SQL);
         $this->addSql(<<<'SQL'
             CREATE TABLE mensaje (id INT AUTO_INCREMENT NOT NULL, encuentro_id INT DEFAULT NULL, remitente_id INT DEFAULT NULL, contenido LONGTEXT NOT NULL, fecha_envio DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)', INDEX IDX_9B631D01E304C7C8 (encuentro_id), INDEX IDX_9B631D011C3E945F (remitente_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
@@ -36,7 +36,7 @@ final class Version20250602141512 extends AbstractMigration
             CREATE TABLE notificacion (id INT AUTO_INCREMENT NOT NULL, usuario_id INT DEFAULT NULL, mensaje VARCHAR(255) NOT NULL, leido TINYINT(1) NOT NULL, fecha DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)', INDEX IDX_729A19ECDB38439E (usuario_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
         SQL);
         $this->addSql(<<<'SQL'
-            CREATE TABLE perfil (id INT AUTO_INCREMENT NOT NULL, usuario_id INT DEFAULT NULL, nombre VARCHAR(255) NOT NULL, edad INT NOT NULL, genero VARCHAR(50) NOT NULL, biografia LONGTEXT DEFAULT NULL, ubicacion VARCHAR(255) DEFAULT NULL, preferencia_sexual VARCHAR(255) NOT NULL, rango_edad_min INT NOT NULL, rango_edad_max INT NOT NULL, UNIQUE INDEX UNIQ_96657647DB38439E (usuario_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
+            CREATE TABLE perfil (id INT AUTO_INCREMENT NOT NULL, usuario_id INT DEFAULT NULL, nombre VARCHAR(255) NOT NULL, edad INT NOT NULL, genero VARCHAR(50) NOT NULL, biografia LONGTEXT DEFAULT NULL, ubicacion VARCHAR(255) DEFAULT NULL, preferencia_sexual VARCHAR(255) NOT NULL, rango_edad_min INT NOT NULL, rango_edad_max INT NOT NULL, hobbies JSON DEFAULT NULL COMMENT '(DC2Type:json)', UNIQUE INDEX UNIQ_96657647DB38439E (usuario_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
         SQL);
         $this->addSql(<<<'SQL'
             CREATE TABLE usuario (id INT AUTO_INCREMENT NOT NULL, correo VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, roles JSON NOT NULL COMMENT '(DC2Type:json)', fecha_creacion DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
