@@ -77,6 +77,11 @@ class EnsurePerfilSubscriber implements EventSubscriberInterface
             'usuario_crear',
             'foto_borrar_fotos_perfil',
 
+            'notificacion_',
+            'notificacion_ver_todas',
+            'notificacion_marcar_leida',
+            'notificacion_eliminar',
+
 
 
         ];
