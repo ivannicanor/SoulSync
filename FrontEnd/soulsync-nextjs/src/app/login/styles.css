@@ -1,0 +1,263 @@
+/* 
+ * ESTILOS PARA LA PÁGINA DE LOGIN DE SOULSYNC
+ * Autor: Desarrollador Senior UI/UX
+ * Descripción: Este archivo contiene todos los estilos necesarios para la página de login
+ * con animaciones, efectos visuales y elementos interactivos.
+ */
+
+/* Animación del fondo con gradiente que se mueve lentamente */
+.animate-gradient {
+  background-size: 300% 300%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; } /* Posición inicial del gradiente */
+  50% { background-position: 100% 50%; } /* Punto medio del movimiento */
+  100% { background-position: 0% 50%; } /* Regreso a la posición inicial */
+}
+
+/* Efecto de brillo en el texto del título que se mueve de izquierda a derecha */
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; } /* Desplaza el gradiente para crear efecto brillante */
+}
+
+/* Animación de pulso lento para el logo, da sensación de "respiración" */
+.animate-pulse-slow {
+  animation: pulseSlow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseSlow {
+  0%, 100% { opacity: 1; transform: scale(1); } /* Estado normal */
+  50% { opacity: 0.8; transform: scale(0.95); } /* Estado contraído */
+}
+
+/* Elementos de brillo en el fondo que crean profundidad visual */
+.glow-1, .glow-2, .glow-3 {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px); /* Desenfoque para crear efecto de luz difusa */
+  opacity: 0.5;
+}
+
+/* Configuración del primer elemento de brillo (azul) */
+.glow-1 {
+  top: 20%;
+  left: 10%;
+  width: 40vw;
+  height: 40vw;
+  background: rgba(147, 197, 253, 0.6); /* Azul claro semi-transparente */
+  animation: float 10s ease-in-out infinite;
+}
+
+/* Configuración del segundo elemento de brillo (morado) */
+.glow-2 {
+  bottom: 10%;
+  right: 15%;
+  width: 30vw;
+  height: 30vw;
+  background: rgba(139, 92, 246, 0.6); /* Morado semi-transparente */
+  animation: float 14s ease-in-out infinite reverse;
+}
+
+/* Configuración del tercer elemento de brillo (azul claro) */
+.glow-3 {
+  top: 50%;
+  right: 30%;
+  width: 20vw;
+  height: 20vw;
+  background: rgba(96, 165, 250, 0.5); /* Azul celeste semi-transparente */
+  animation: float 12s ease-in-out infinite 2s;
+}
+
+/* Animación de flotación para los elementos de brillo */
+@keyframes float {
+  0% { transform: translate(0, 0); } /* Posición inicial */
+  50% { transform: translate(-10px, 10px); } /* Desplazamiento máximo */
+  100% { transform: translate(0, 0); } /* Regreso a posición inicial */
+}
+
+/* Partículas flotantes que suben por la pantalla */
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.5); /* Puntos blancos semi-transparentes */
+  border-radius: 50%;
+  animation: float-up linear infinite; /* La duración se define en línea */
+}
+
+/* Animación para las partículas flotantes */
+@keyframes float-up {
+  0% { transform: translateY(0) scale(0); opacity: 0; } /* Inicio invisible */
+  20% { transform: translateY(-5vh) scale(1); opacity: 0.8; } /* Aparición y subida */
+  100% { transform: translateY(-30vh) scale(0); opacity: 0; } /* Desaparición gradual */
+}
+
+/* Animación de aparición con fade para mensajes de error */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); } /* Inicio invisible y desplazado */
+  to { opacity: 1; transform: translateY(0); } /* Final visible y en posición */
+}
+
+/* Efecto de brillo que recorre la tarjeta de login */
+.card-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-100%); /* Comienza fuera de la vista */
+  animation: shine 6s infinite; /* Brillo cada 6 segundos */
+}
+
+/* Animación del brillo que recorre la tarjeta */
+@keyframes shine {
+  0% { transform: translateX(-100%); } /* Fuera de la vista por la izquierda */
+  20% { transform: translateX(100%); } /* Atraviesa toda la tarjeta */
+  100% { transform: translateX(100%); } /* Permanece fuera de la vista por la derecha */
+}
+
+/* Resplandor pulsante alrededor de la tarjeta */
+.card-glow {
+  position: absolute;
+  inset: 0; /* Abreviatura para top, right, bottom, left = 0 */
+  border-radius: inherit;
+  box-shadow: 0 0 40px 5px rgba(147, 197, 253, 0.4); /* Sombra azul */
+  opacity: 0;
+  animation: cardGlow 3s ease-in-out infinite alternate;
+}
+
+/* Animación del resplandor pulsante */
+@keyframes cardGlow {
+  0% { opacity: 0.3; } /* Brillo mínimo */
+  100% { opacity: 0.8; } /* Brillo máximo */
+}
+
+/* Animación de pulsación del botón al hacer clic */
+.animate-button-click {
+  animation: buttonPulse 0.8s ease-out;
+  transform-origin: center;
+}
+
+@keyframes buttonPulse {
+  0% { transform: scale(1); } /* Tamaño normal */
+  50% { transform: scale(0.95); } /* Contracción */
+  100% { transform: scale(1); } /* Regreso a tamaño normal */
+}
+
+/* Animación de relleno del botón al hacer clic */
+.animate-button-fill {
+  animation: buttonFill 0.8s ease-out forwards;
+}
+
+@keyframes buttonFill {
+  0% { opacity: 0; } /* Inicio invisible */
+  100% { opacity: 1; } /* Completamente visible */
+}
+
+/* Animación para la marca de verificación que aparece */
+.animate-success-mark {
+  opacity: 0;
+  animation: successMark 0.8s ease-out forwards;
+  animation-delay: 0.2s; /* Espera un momento antes de aparecer */
+}
+
+@keyframes successMark {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0); } /* Inicio invisible */
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } /* Aparición con rebote */
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } /* Tamaño final */
+}
+
+/* Animación de desaparición del texto del botón */
+.animate-text-disappear {
+  animation: textDisappear 0.3s ease-out forwards;
+}
+
+@keyframes textDisappear {
+  0% { opacity: 1; } /* Texto visible */
+  100% { opacity: 0; } /* Texto invisible */
+}
+
+/* Animación de rebote de la tarjeta al hacer clic en el botón */
+.animate-card-success {
+  animation: cardSuccess 1s ease-out;
+}
+
+@keyframes cardSuccess {
+  0% { transform: translateY(0); } /* Posición inicial */
+  20% { transform: translateY(-10px); } /* Elevación máxima */
+  40% { transform: translateY(0); } /* Regreso a posición inicial */
+}
+
+/* Contenedor para la animación de explosión */
+.explosion-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none; /* Permite clics a través del contenedor */
+  z-index: 100; /* Por encima de todos los elementos */
+}
+
+/* Anillo de explosión que se expande */
+.explosion-ring {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: 0 0 100px 40px rgba(147, 197, 253, 0.8), /* Sombra azul */
+              0 0 60px 20px rgba(139, 92, 246, 0.7); /* Sombra morada */
+  animation: explode-ring 1s ease-out forwards;
+}
+
+/* Animación del anillo de explosión */
+@keyframes explode-ring {
+  0% { transform: scale(0); opacity: 1; } /* Inicio pequeño y visible */
+  100% { transform: scale(20); opacity: 0; } /* Expansión grande y desaparición */
+}
+
+/* Contenedor de partículas de explosión */
+.explosion-particles {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+}
+
+/* Partículas individuales de la explosión */
+.explosion-particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(to right, #60a5fa, #8b5cf6); /* Gradiente azul a morado */
+  transform-origin: center;
+  animation: particle-explode 1s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards;
+}
+
+/* Animación de las partículas de explosión */
+@keyframes particle-explode {
+  0% { transform: rotate(0) translateY(0) scale(0); opacity: 1; } /* Inicio en el centro */
+  70% { opacity: 1; } /* Mantiene visibilidad */
+  100% { transform: rotate(0) translateY(100px) scale(1); opacity: 0; } /* Expansión y desaparición */
+} 
