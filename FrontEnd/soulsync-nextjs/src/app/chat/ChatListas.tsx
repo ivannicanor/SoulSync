@@ -43,6 +43,26 @@ const ChatVista: React.FC = () => {
         console.log('ID del usuario:', id);
         setUsuarioId(id);
 
+        // Obtener todas las notificaciones del usuario
+        const resNotificaciones = await fetch(`http://localhost:8000/notificaciones/usuario/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const notificaciones = await resNotificaciones.json();
+        
+        // Marcar cada notificación no leída como leída
+        for (const notificacion of notificaciones) {
+          if (!notificacion.leido) {
+            await fetch(`http://localhost:8000/notificaciones/${notificacion.id}/leida`, {
+              method: 'PUT',
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+          }
+        }
 
         // Luego obtenemos los matches con ese ID (con_nombre con la persona que tiene el match , el id del encuentro, la fecha y usuario usuario_id)
         const resUsuarios = await fetch(`http://localhost:8000/encuentros/usuarioMatch/${id}`, {
