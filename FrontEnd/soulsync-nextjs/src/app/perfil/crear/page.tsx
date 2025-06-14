@@ -94,7 +94,7 @@ const CrearPerfil = () => {
     if (showConfetti) {
       const timer = setTimeout(() => {
         setShowConfetti(false);
-      }, 3000);
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [showConfetti]);
@@ -291,7 +291,7 @@ const CrearPerfil = () => {
   };
 
   return (
-    <main className={`min-h-screen bg-gradient-to-br from-indigo-900 via-purple-800 to-violet-900 p-6 overflow-hidden relative ${animateBackground ? 'animate-gradient' : ''}`}>
+    <main className={`min-h-screen bg-gradient-to-br from-violet-950 via-indigo-900 to-fuchsia-900 p-6 overflow-hidden relative ${animateBackground ? 'animate-gradient' : ''}`}>
       {/* Elementos de brillo en el fondo */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="glow-1"></div>
@@ -318,49 +318,51 @@ const CrearPerfil = () => {
       {/* Animación de confeti */}
       {showConfetti && (
         <div className="confetti-container">
-          {Array.from({ length: 50 }).map((_, i) => (
+          {Array.from({ length: 100 }).map((_, i) => (
             <div 
               key={i} 
               className="confetti"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `-5%`,
-                backgroundColor: [
-                  '#8b5cf6', // Morado
-                  '#60a5fa', // Azul
-                  '#a78bfa', // Lavanda
-                  '#93c5fd', // Azul claro
-                ][Math.floor(Math.random() * 4)],
-                width: `${Math.random() * 10 + 5}px`,
-                height: `${Math.random() * 20 + 10}px`,
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${Math.random() * 3 + 2}s`,
-                transform: `rotate(${Math.random() * 360}deg)`,
-              }}
+                              style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 20}%`,
+                  backgroundColor: [
+                    '#8b5cf6', // Morado
+                    '#60a5fa', // Azul
+                    '#a78bfa', // Lavanda
+                    '#93c5fd', // Azul claro
+                    '#f472b6', // Rosa
+                    '#4ade80', // Verde
+                  ][Math.floor(Math.random() * 6)],
+                  width: `${Math.random() * 10 + 5}px`,
+                  height: `${Math.random() * 20 + 10}px`,
+                  animationDelay: `${Math.random() * 1}s`,
+                  animationDuration: `${Math.random() * 2 + 2}s`,
+                  transform: `translateX(${(Math.random() * 2 - 1) * 20}vw)`,
+                }}
             ></div>
           ))}
         </div>
       )}
       
       {/* Tarjeta principal del formulario */}
-      <div className={`w-full max-w-4xl mx-auto bg-gradient-to-br from-purple-600/90 to-blue-400/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-blue-300/40 transition-all duration-500 hover:shadow-blue-400/60 relative z-10 shadow-[0_0_25px_rgba(165,180,252,0.5)] ${animateCard ? 'fade-in' : ''} ${buttonClicked ? 'animate-card-success' : ''}`}>
+      <div className={`w-full max-w-4xl mx-auto bg-gradient-to-br from-indigo-800/90 to-violet-600/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-violet-300/30 transition-all duration-500 hover:shadow-violet-400/60 relative z-10 shadow-[0_0_35px_rgba(139,92,246,0.5)] ${animateCard ? 'fade-in' : ''} ${buttonClicked ? 'animate-card-success' : ''}`}>
         {/* Efecto de brillo que recorre la tarjeta */}
         <div className="card-shine"></div>
         {/* Resplandor pulsante alrededor de la tarjeta */}
         <div className="card-glow"></div>
         
         {/* Encabezado */}
-        <div className="px-8 pt-8 pb-6 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="h-16 w-16 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/50 animate-pulse-slow">
-              <span className="text-white text-2xl font-bold">SS</span>
+        <div className="px-8 pt-10 pb-8 text-center bg-gradient-to-b from-violet-900/40 to-transparent">
+          <div className="flex justify-center mb-6">
+            <div className="h-20 w-20 rounded-2xl bg-gradient-to-tr from-violet-500 to-fuchsia-400 flex items-center justify-center shadow-lg shadow-violet-500/50 rotate-12 hover:rotate-0 transition-all duration-300">
+              <span className="text-white text-3xl font-bold">SS</span>
             </div>
           </div>
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-transparent animate-shimmer">
-            Crea tu perfil
+          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-violet-200 to-fuchsia-200 bg-clip-text text-transparent animate-shimmer">
+            Tu Perfil SoulSync
           </h1>
-          <p className="text-white/80 mt-2 font-medium">
-            Personaliza tu perfil para que otros usuarios puedan conocerte mejor
+          <p className="text-white/80 mt-3 font-medium max-w-lg mx-auto">
+            Muestra tu mejor versión y conecta con personas afines a tus intereses
           </p>
         </div>
         
@@ -368,12 +370,12 @@ const CrearPerfil = () => {
         <div className="p-8">
           <form onSubmit={manejarEnvio}>
             {/* Sección de información básica */}
-            <div className="form-section slide-in">
-              <h2 className="section-title">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-300" viewBox="0 0 20 20" fill="currentColor">
+            <div className="form-section slide-in bg-gradient-to-br from-indigo-900/40 to-violet-800/30 border border-violet-500/20 rounded-xl p-6">
+              <h2 className="section-title flex items-center space-x-2 text-fuchsia-300 mb-4 pb-2 border-b border-violet-500/30">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-fuchsia-400" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
-                Información básica
+                <span>Información básica</span>
               </h2>
               
               <div className="form-row">
@@ -382,7 +384,7 @@ const CrearPerfil = () => {
                   <input 
                     id="nombre"
                     name="nombre" 
-                    className="form-input" 
+                    className="form-input bg-indigo-900/30 border-violet-500/30 focus:border-fuchsia-400 focus:ring focus:ring-fuchsia-400/20" 
                     placeholder="Tu nombre" 
                     required 
                     value={formulario.nombre}
@@ -396,7 +398,7 @@ const CrearPerfil = () => {
                     id="edad"
                     type="number" 
                     name="edad" 
-                    className="form-input" 
+                    className="form-input bg-indigo-900/30 border-violet-500/30 focus:border-fuchsia-400 focus:ring focus:ring-fuchsia-400/20" 
                     placeholder="Tu edad" 
                     min="18" 
                     max="100" 
@@ -413,7 +415,7 @@ const CrearPerfil = () => {
                   <select 
                     id="genero"
                     name="genero" 
-                    className="form-select" 
+                    className="form-select bg-indigo-900/30 border-violet-500/30 focus:border-fuchsia-400 focus:ring focus:ring-fuchsia-400/20" 
                     required 
                     value={formulario.genero}
                     onChange={manejarCambio}
@@ -436,7 +438,7 @@ const CrearPerfil = () => {
                     <input 
                       id="ubicacion"
                       name="ubicacion" 
-                      className="form-input pl-10" 
+                      className="form-input pl-10 bg-indigo-900/30 border-violet-500/30 focus:border-fuchsia-400 focus:ring focus:ring-fuchsia-400/20" 
                       placeholder="Busca tu ciudad" 
                       value={ciudadBusqueda}
                       onChange={(e) => {
@@ -511,7 +513,7 @@ const CrearPerfil = () => {
                 <textarea 
                   id="biografia"
                   name="biografia" 
-                  className="form-textarea" 
+                  className="form-textarea bg-indigo-900/30 border-violet-500/30 focus:border-fuchsia-400 focus:ring focus:ring-fuchsia-400/20" 
                   placeholder="Cuéntanos sobre ti..." 
                   value={formulario.biografia}
                   onChange={manejarCambio} 
@@ -520,12 +522,12 @@ const CrearPerfil = () => {
             </div>
             
             {/* Sección de preferencias */}
-            <div className="form-section slide-in" style={{ animationDelay: '0.1s' }}>
-              <h2 className="section-title">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-300" viewBox="0 0 20 20" fill="currentColor">
+            <div className="form-section slide-in bg-gradient-to-br from-indigo-900/40 to-violet-800/30 border border-violet-500/20 rounded-xl p-6" style={{ animationDelay: '0.1s' }}>
+              <h2 className="section-title flex items-center space-x-2 text-fuchsia-300 mb-4 pb-2 border-b border-violet-500/30">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-fuchsia-400" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
                 </svg>
-                Preferencias
+                <span>Preferencias</span>
               </h2>
               
               <div className="form-group">
@@ -533,7 +535,7 @@ const CrearPerfil = () => {
                 <select 
                   id="preferenciaSexual"
                   name="preferenciaSexual" 
-                  className="form-select" 
+                  className="form-select bg-indigo-900/30 border-violet-500/30 focus:border-fuchsia-400 focus:ring focus:ring-fuchsia-400/20" 
                   required 
                   value={formulario.preferenciaSexual}
                   onChange={manejarCambio}
@@ -586,12 +588,12 @@ const CrearPerfil = () => {
             </div>
             
             {/* Sección de fotos */}
-            <div className="form-section slide-in" style={{ animationDelay: '0.2s' }}>
-              <h2 className="section-title">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-300" viewBox="0 0 20 20" fill="currentColor">
+            <div className="form-section slide-in bg-gradient-to-br from-indigo-900/40 to-violet-800/30 border border-violet-500/20 rounded-xl p-6" style={{ animationDelay: '0.2s' }}>
+              <h2 className="section-title flex items-center space-x-2 text-fuchsia-300 mb-4 pb-2 border-b border-violet-500/30">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-fuchsia-400" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                 </svg>
-                Tus mejores fotos
+                <span>Tus mejores fotos</span>
               </h2>
               
               <div className="photos-section">
@@ -648,12 +650,12 @@ const CrearPerfil = () => {
             </div>
             
             {/* Sección de intereses */}
-            <div className="form-section slide-in" style={{ animationDelay: '0.3s' }}>
-              <h2 className="section-title">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-300" viewBox="0 0 20 20" fill="currentColor">
+            <div className="form-section slide-in bg-gradient-to-br from-indigo-900/40 to-violet-800/30 border border-violet-500/20 rounded-xl p-6" style={{ animationDelay: '0.3s' }}>
+              <h2 className="section-title flex items-center space-x-2 text-fuchsia-300 mb-4 pb-2 border-b border-violet-500/30">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-fuchsia-400" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                Intereses
+                <span>Intereses</span>
               </h2>
               
               <div className="interests-section">
@@ -694,7 +696,7 @@ const CrearPerfil = () => {
             <div className="submit-container">
               <button 
                 type="submit" 
-                className="submit-button relative overflow-hidden"
+                className="submit-button relative overflow-hidden bg-gradient-to-r from-fuchsia-600 to-violet-700 hover:from-fuchsia-500 hover:to-violet-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-violet-700/30 transition-all duration-300 transform hover:-translate-y-1"
                 disabled={isLoading}
               >
                 <span className={`relative z-10 flex justify-center items-center ${buttonClicked && !isLoading ? 'animate-text-disappear' : ''}`}>
@@ -709,8 +711,8 @@ const CrearPerfil = () => {
                 </span>
                 
                 {/* Efectos de hover para el botón */}
-                <span className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 opacity-0 group-hover:opacity-40 transition-opacity duration-300"></span>
-                <span className="absolute inset-0 scale-x-0 group-hover:scale-x-100 bg-gradient-to-r from-blue-400/20 to-purple-500/20 origin-left transition-transform duration-500"></span>
+                <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+                <span className="absolute -inset-1 scale-x-0 group-hover:scale-x-100 bg-gradient-to-r from-fuchsia-400/20 to-violet-400/20 origin-left transition-transform duration-500 rounded-xl blur-xl"></span>
                 
                 {/* Elementos de animación de éxito al hacer clic */}
                 {buttonClicked && !isLoading && (

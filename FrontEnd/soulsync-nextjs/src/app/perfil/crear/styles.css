@@ -924,4 +924,45 @@
 
 .dark .city-option.active {
   background: rgba(138, 75, 255, 0.35);
+}
+
+/* Contenedor para la animación de confeti */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  pointer-events: none; /* Permite clics a través del contenedor */
+  z-index: 9999; /* Por encima de todos los elementos */
+  overflow: hidden;
+}
+
+/* Partículas de confeti */
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 20px;
+  opacity: 0.8;
+  z-index: 9999;
+  transform-origin: center;
+  animation: confetti-fall 4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Animación de caída del confeti */
+@keyframes confetti-fall {
+  0% { 
+    transform: translateY(-5vh) translateX(0) rotate(0deg); 
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% { 
+    transform: translateY(100vh) translateX(calc(20vw * var(--random-x, 0))) rotate(720deg); 
+    opacity: 0;
+  }
 } 
