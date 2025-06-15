@@ -1,11 +1,15 @@
 /* navbar.module.css */
 .navbar {
-  background-color: #1a237e; /* Azul oscuro */
-  padding: 10px 20px;
+  background: linear-gradient(to right, #1a237e, #283593);
+  padding: 12px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .logo {
@@ -14,37 +18,212 @@
   cursor: pointer;
   color: white;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(to right, #e1bee7, #bbdefb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.logoIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3949ab, #7b1fa2);
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.logoLink {
+  text-decoration: none;
 }
 
 .enlaces {
   display: flex;
   gap: 15px;
+  align-items: center;
 }
 
 .boton {
-  background-color: #3949ab;
-  border: none;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 8px 16px;
   color: white;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
 }
 
 .boton:hover {
-  background-color: #303f9f;
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.botonLogin {
-  background-color: #2196f3;
+.botonAdmin {
+  background-color: rgba(233, 30, 99, 0.2);
+  border-color: rgba(233, 30, 99, 0.3);
+}
+
+.botonAdmin:hover {
+  background-color: rgba(233, 30, 99, 0.3);
+}
+
+.botonManager {
+  background-color: rgba(0, 150, 136, 0.2);
+  border-color: rgba(0, 150, 136, 0.3);
+}
+
+.botonManager:hover {
+  background-color: rgba(0, 150, 136, 0.3);
+}
+
+.botonLogout {
+  background: linear-gradient(135deg, #7e57c2, #5e35b1);
   border: none;
   padding: 8px 16px;
   color: white;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(94, 53, 177, 0.3);
 }
 
-.botonLogin:hover {
-  background-color: #1976d2;
+.botonLogout:hover {
+  background: linear-gradient(135deg, #9575cd, #7e57c2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(94, 53, 177, 0.4);
+}
+
+.buttonIcon {
+  display: inline-block;
+}
+
+.notificationContainer {
+  position: relative;
+}
+
+.notificationButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notificationBell {
+  color: white;
+  transition: transform 0.2s ease;
+}
+
+.notificationButton:hover .notificationBell {
+  transform: scale(1.1);
+}
+
+.notificationBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #f44336;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.notificationDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 250px;
+  background: rgba(30, 30, 60, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  margin-top: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+.notificationDropdown h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: white;
+  font-size: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+}
+
+.notificationDropdown p {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+  .navbar {
+    padding: 10px 15px;
+  }
+  
+  .enlaces {
+    gap: 8px;
+  }
+  
+  .boton, .botonLogout {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+  
+  .buttonIcon {
+    width: 14px;
+    height: 14px;
+  }
 }
