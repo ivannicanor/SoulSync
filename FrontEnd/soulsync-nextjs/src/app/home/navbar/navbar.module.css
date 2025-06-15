@@ -1,43 +1,90 @@
 /* navbar.module.css */
 .navbar {
-  background: linear-gradient(to right, #1a237e, #283593);
-  padding: 12px 24px;
+  background: linear-gradient(to right, rgba(79, 70, 229, 0.95), rgba(124, 58, 237, 0.95), rgba(139, 92, 246, 0.95));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 14px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  position: sticky;
+  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3);
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .logo {
-  font-size: 1.5em;
-  font-weight: bold;
+  font-size: 1.4em;
+  font-weight: 700;
   cursor: pointer;
-  color: white;
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 10px;
-  background: linear-gradient(to right, #e1bee7, #bbdefb);
+  background: linear-gradient(to right, #e0e7ff, #ffffff);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  letter-spacing: -0.5px;
+  position: relative;
+}
+
+.logo::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, rgba(224, 231, 255, 0.6), rgba(255, 255, 255, 0.6));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover::after {
+  transform: scaleX(1);
 }
 
 .logoIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, #3949ab, #7b1fa2);
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-radius: 12px;
   color: white;
-  font-weight: bold;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.logoIcon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  20% { left: 100%; }
+  100% { left: 100%; }
 }
 
 .logoLink {
@@ -46,71 +93,128 @@
 
 .enlaces {
   display: flex;
-  gap: 15px;
+  gap: 16px;
   align-items: center;
 }
 
 .boton {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 8px 16px;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-}
-
-.boton:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.botonAdmin {
-  background-color: rgba(233, 30, 99, 0.2);
-  border-color: rgba(233, 30, 99, 0.3);
-}
-
-.botonAdmin:hover {
-  background-color: rgba(233, 30, 99, 0.3);
-}
-
-.botonManager {
-  background-color: rgba(0, 150, 136, 0.2);
-  border-color: rgba(0, 150, 136, 0.3);
-}
-
-.botonManager:hover {
-  background-color: rgba(0, 150, 136, 0.3);
-}
-
-.botonLogout {
-  background: linear-gradient(135deg, #7e57c2, #5e35b1);
+  background: rgba(255, 255, 255, 0.15);
   border: none;
   padding: 8px 16px;
   color: white;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: 500;
-  box-shadow: 0 2px 8px rgba(94, 53, 177, 0.3);
+  font-size: 0.9rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.boton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transition: left 0.5s ease;
+}
+
+.boton:hover::before {
+  left: 100%;
+}
+
+.boton:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.boton:active {
+  transform: translateY(0);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.botonAdmin {
+  background: rgba(236, 72, 153, 0.25);
+}
+
+.botonAdmin:hover {
+  background: rgba(236, 72, 153, 0.35);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+.botonManager {
+  background: rgba(14, 165, 233, 0.25);
+}
+
+.botonManager:hover {
+  background: rgba(14, 165, 233, 0.35);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.botonLogout {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border: none;
+  padding: 8px 16px;
+  color: white;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.botonLogout::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transition: left 0.5s ease;
+}
+
+.botonLogout:hover::before {
+  left: 100%;
 }
 
 .botonLogout:hover {
-  background: linear-gradient(135deg, #9575cd, #7e57c2);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(94, 53, 177, 0.4);
+}
+
+.botonLogout:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
 }
 
 .buttonIcon {
   display: inline-block;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
 }
 
 .notificationContainer {
@@ -118,30 +222,57 @@
 }
 
 .notificationButton {
-  background: none;
+  background: rgba(255, 255, 255, 0.15);
   border: none;
   cursor: pointer;
   position: relative;
-  padding: 5px;
+  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.notificationButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transition: left 0.5s ease;
+}
+
+.notificationButton:hover::before {
+  left: 100%;
+}
+
+.notificationButton:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .notificationBell {
   color: white;
   transition: transform 0.2s ease;
-}
-
-.notificationButton:hover .notificationBell {
-  transform: scale(1.1);
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
 }
 
 .notificationBadge {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: #f44336;
+  top: -2px;
+  right: -2px;
+  background: linear-gradient(135deg, #f43f5e, #ec4899);
   color: white;
   border-radius: 50%;
   width: 20px;
@@ -149,45 +280,57 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  font-weight: bold;
+  font-size: 0.7rem;
+  font-weight: 600;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.95), 0 2px 4px rgba(0, 0, 0, 0.3);
   animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
 
 .notificationDropdown {
   position: absolute;
   top: 100%;
   right: 0;
-  width: 250px;
-  background: rgba(30, 30, 60, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  width: 280px;
+  background: rgba(30, 27, 75, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.08);
   z-index: 10;
   margin-top: 10px;
   animation: fadeIn 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.notificationDropdown::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 20px;
+  width: 12px;
+  height: 12px;
+  background: rgba(30, 27, 75, 0.95);
+  transform: rotate(45deg);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .notificationDropdown h3 {
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   color: white;
   font-size: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 10px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+  letter-spacing: -0.3px;
 }
 
 .notificationDropdown p {
@@ -210,7 +353,7 @@
 /* Responsive styles */
 @media (max-width: 600px) {
   .navbar {
-    padding: 10px 15px;
+    padding: 12px 16px;
   }
   
   .enlaces {
@@ -218,8 +361,8 @@
   }
   
   .boton, .botonLogout {
-    padding: 6px 10px;
-    font-size: 0.9rem;
+    padding: 6px 12px;
+    font-size: 0.85rem;
   }
   
   .buttonIcon {
