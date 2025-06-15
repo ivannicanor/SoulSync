@@ -1,29 +1,46 @@
 "use client";
 
-
-import React, { useState, useEffect, useRef } from 'react';
-import estilos from "./chat.module.css";
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { usePerfilGuard } from '@/hooks/usePerfilGuard';
-
+import LoadingScreen from '../ui/LoadingScreen';
 
 // Mensajes de ejemplo para cada chat
 const ChatVista: React.FC = () => {
+  const autenticado = useAuthGuard();
+  const perfilCreado = usePerfilGuard();
   const [perfiles, setPerfiles] = useState<any[]>([]);
   const [indice, setIndice] = useState(0);
   const [sinPerfiles, setSinPerfiles] = useState(false);
   const [cargando, setCargando] = useState(true);
   const [chatActivo, setChatActivo] = useState("");
-  const [mensajes, setMensajes] = useState<{ id: number; texto: string; emisor: string }[]>([]);
+  const [mensajes, setMensajes] = useState<{ id: number; texto: string; emisor: string; timestamp?: string }[]>([]);
   const [nuevoMensaje, setNuevoMensaje] = useState("");
   const [cargandoMensajes, setCargandoMensajes] = useState(false);
   const [encuentroActivo, setEncuentroActivo] = useState<number | null>(null);
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
   const [ultimoMensajeId, setUltimoMensajeId] = useState<number>(0);
+  const [animateBackground, setAnimateBackground] = useState(false);
+  const [showSendAnimation, setShowSendAnimation] = useState(false);
+  
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const intervalEncuentrosRef = useRef<NodeJS.Timeout | null>(null);
-  const autenticado = useAuthGuard();
-  const perfilCreado = usePerfilGuard();
+  const mensajesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Generar posiciones de partículas una sola vez con useMemo
+  const particles = useMemo(() => {
+    return Array.from({ length: 12 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      animationDelay: `${Math.random() * 5}s`,
+      animationDuration: `${Math.random() * 10 + 10}s`,
+    }));
+  }, []);
+
+  useEffect(() => {
+    setAnimateBackground(true);
+  }, []);
  
   useEffect(() => {
     const cargarPerfiles = async () => {
@@ -40,7 +57,6 @@ const ChatVista: React.FC = () => {
  
         const miPerfil = await resMiPerfil.json();
         const id = miPerfil.datos.usuarioId;
-        console.log('ID del usuario:', id);
         setUsuarioId(id);
 
         // Obtener todas las notificaciones del usuario
@@ -64,7 +80,7 @@ const ChatVista: React.FC = () => {
           }
         }
 
-        // Luego obtenemos los matches con ese ID (con_nombre con la persona que tiene el match , el id del encuentro, la fecha y usuario usuario_id)
+        // Luego obtenemos los matches con ese ID
         const resUsuarios = await fetch(`http://localhost:8000/encuentros/usuarioMatch/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -73,15 +89,9 @@ const ChatVista: React.FC = () => {
          
         const matches = await resUsuarios.json();
 
-
- 
         if (Array.isArray(matches) && matches.length > 0) {
           setPerfiles(matches);
           // Actualizar el chat activo al primer match
-          //para obtener el nombre del match usamos .con_nombre
-          //para obtener el id del encuentro usamos .encuentro_id
-          //para obtener la fecha del match usamos .fecha
-          //para obtener el id del otro usuario usamos .con_usuario_id
           const primerMatch = matches[0].con_nombre || "Chat";
           setChatActivo(primerMatch);
           setEncuentroActivo(matches[0].encuentro_id);
@@ -121,7 +131,7 @@ const ChatVista: React.FC = () => {
     // Establecer un intervalo para verificar mensajes cada 10 segundos
     intervalRef.current = setInterval(() => {
       verificarNuevosMensajes(encuentroActivo);
-    }, 10000);
+    }, 5000);
 
     // Limpiar el intervalo cuando cambie el encuentro activo o al desmontar
     return () => {
@@ -130,6 +140,13 @@ const ChatVista: React.FC = () => {
       }
     };
   }, [encuentroActivo, usuarioId]);
+
+  // Scroll al último mensaje cuando se añaden nuevos mensajes
+  useEffect(() => {
+    if (mensajesEndRef.current) {
+      mensajesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [mensajes]);
 
   // Función para verificar si hay mensajes nuevos sin mostrar carga
   const verificarNuevosMensajes = async (encuentroId: number) => {
@@ -148,23 +165,31 @@ const ChatVista: React.FC = () => {
       if (Array.isArray(mensajesData) && mensajesData.length > 0) {
         // Buscar si hay mensajes nuevos del otro usuario
         const mensajesNuevos = mensajesData.filter(msg => 
-          msg.remitente_id !== usuarioId && msg.id > ultimoMensajeId
+          String(msg.remitente_id) !== (usuarioId ? String(usuarioId) : localStorage.getItem('usuarioId') || '') && msg.id > ultimoMensajeId
         );
 
         // Si hay mensajes nuevos del otro usuario, actualizar la lista completa
         if (mensajesNuevos.length > 0) {
-          console.log('Se encontraron nuevos mensajes del otro usuario, actualizando chat');
-          
           // Actualizar el último ID de mensaje
           const maxId = Math.max(...mensajesData.map(msg => msg.id));
           setUltimoMensajeId(maxId);
           
+          // Obtener el perfil activo para verificar el ID del remitente
+          const perfilActivo = perfiles.find(p => p.encuentro_id === encuentroId);
+          const otroUsuarioId = perfilActivo ? perfilActivo.con_usuario_id : null;
+          
           // Transformar formato de mensajes del API al formato de la UI
-          const mensajesFormateados = mensajesData.map(msg => ({
-            id: msg.id,
-            texto: msg.contenido,
-            emisor: msg.remitente_id === usuarioId ? "yo" : "otro"
-          }));
+          const mensajesFormateados = mensajesData.map(msg => {
+            // Asegurarse de que el ID del usuario actual está disponible
+            const idUsuario = usuarioId ? String(usuarioId) : localStorage.getItem('usuarioId') || '';
+            
+            return {
+              id: msg.id,
+              texto: msg.contenido,
+              emisor: String(msg.remitente_id) === idUsuario ? "yo" : "otro"
+              // Se elimina el timestamp
+            };
+          });
          
           setMensajes(mensajesFormateados);
         }
@@ -174,20 +199,38 @@ const ChatVista: React.FC = () => {
     }
   };
 
-  // Función para cargar mensajes de un encuentro (obtenemos el chat de un encuentro mensajes entre las 2 personas)
+  // Función para formatear la fecha (mantenida por si se necesita en el futuro)
+// const formatTimestamp = (timestamp: string) => {
+//   if (!timestamp) return '';
+//   
+//   const date = new Date(timestamp);
+//   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+// };
+
+  // Función para cargar mensajes de un encuentro
   const cargarMensajes = async (encuentroId: number) => {
     setCargandoMensajes(true);
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
 
+      // Primero obtenemos el ID del usuario actual si no lo tenemos
+      if (!usuarioId) {
+        const resMiPerfil = await fetch('http://localhost:8000/api/perfiles/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const miPerfil = await resMiPerfil.json();
+        const id = miPerfil.datos.usuarioId;
+        setUsuarioId(id);
+      }
 
       const resMensajes = await fetch(`http://localhost:8000/mensajes/encuentro/${encuentroId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
 
       const mensajesData = await resMensajes.json();
      
@@ -199,12 +242,18 @@ const ChatVista: React.FC = () => {
         }
 
         // Transformar formato de mensajes del API al formato de la UI
-        const mensajesFormateados = mensajesData.map(msg => ({
-          id: msg.id,
-          texto: msg.contenido,
-          // Si el remitente_id es el mismo que el usuario actual, es "yo", si no es "otro"
-          emisor: msg.remitente_id === usuarioId ? "yo" : "otro"
-        }));
+        const mensajesFormateados = mensajesData.map(msg => {
+          // Asegurarse de que el ID del usuario actual está disponible
+          const idUsuario = usuarioId ? String(usuarioId) : localStorage.getItem('usuarioId') || '';
+          
+          return {
+            id: msg.id,
+            texto: msg.contenido,
+            // Si el remitente_id es el mismo que el usuario actual, es "yo", si no es "otro"
+            emisor: String(msg.remitente_id) === idUsuario ? "yo" : "otro"
+            // Se elimina el timestamp
+          };
+        });
        
         setMensajes(mensajesFormateados);
       } else {
@@ -219,7 +268,6 @@ const ChatVista: React.FC = () => {
     }
   };
 
-
   const cambiarChat = (nombre: string, encuentroId: number) => {
     setChatActivo(nombre);
     setEncuentroActivo(encuentroId);
@@ -227,28 +275,28 @@ const ChatVista: React.FC = () => {
     setNuevoMensaje("");
   };
 
-
   const enviarMensaje = async () => {
     if (nuevoMensaje.trim() === "" || !encuentroActivo || !usuarioId) return;
 
-
-    // Primero añadimos el mensaje a la UI para feedback inmediato
-    const nuevoMensajeObj = {
-      id: Date.now(), // ID temporal
-      texto: nuevoMensaje,
-      emisor: "yo",
-    };
-
+      // Primero añadimos el mensaje a la UI para feedback inmediato
+  const nuevoMensajeObj = {
+    id: Date.now(), // ID temporal
+    texto: nuevoMensaje,
+    emisor: "yo"
+    // Se elimina el timestamp
+  };
 
     setMensajes(prev => [...prev, nuevoMensajeObj]);
     const textoMensaje = nuevoMensaje;
     setNuevoMensaje("");
-
+    
+    // Mostrar animación de envío
+    setShowSendAnimation(true);
+    setTimeout(() => setShowSendAnimation(false), 800);
 
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
-
 
       // Luego enviamos al servidor
       const response = await fetch('http://localhost:8000/mensajes', {
@@ -318,7 +366,7 @@ const ChatVista: React.FC = () => {
       }
     };
 
-    intervalEncuentrosRef.current = setInterval(verificarNuevosEncuentros, 10000);
+    intervalEncuentrosRef.current = setInterval(verificarNuevosEncuentros, 5000);
     return () => {
       if (intervalEncuentrosRef.current) {
         clearInterval(intervalEncuentrosRef.current);
@@ -326,71 +374,206 @@ const ChatVista: React.FC = () => {
     };
   }, [usuarioId, perfiles, chatActivo]);
 
+  // Manejar envío al presionar Enter
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      enviarMensaje();
+    }
+  };
+
+  // Efecto para obtener el ID del usuario y guardarlo en localStorage
+  useEffect(() => {
+    const obtenerIdUsuario = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        
+        const resMiPerfil = await fetch('http://localhost:8000/api/perfiles/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+        const miPerfil = await resMiPerfil.json();
+        const id = miPerfil.datos.usuarioId;
+        setUsuarioId(id);
+        localStorage.setItem('usuarioId', id.toString());
+      } catch (error) {
+        console.error('Error obteniendo ID de usuario:', error);
+      }
+    };
+    
+    if (autenticado && perfilCreado) {
+      obtenerIdUsuario();
+    }
+  }, [autenticado, perfilCreado]);
+
+  if (autenticado === null || perfilCreado === null || cargando) {
+    return <LoadingScreen />;
+  }
+
+  if (autenticado === false || perfilCreado === false) {
+    return null;
+  }
+
   return (
-    <div className={estilos.contenedorPrincipal}>
+    <div className="chat-container">
       {/* MENÚ LATERAL */}
-      <div className={estilos.menuLateral}>
-        <h4>Chats Activos</h4>
-        {cargando ? (
-          <div>Cargando...</div>
-        ) : sinPerfiles ? (
-          <div>No hay matches disponibles</div>
-        ) : (
-          perfiles.map((perfil) => (
-            <div
-              key={perfil.con_usuario_id}
-              onClick={() => cambiarChat(perfil.con_nombre, perfil.encuentro_id)}
-              className={`${estilos.chatItem} ${
-                perfil.con_nombre === chatActivo ? estilos.chatItemActivo : ""
-              }`}
-            >
-              {perfil.con_nombre}
+      <div className="chat-sidebar">
+        <div className="chat-sidebar-header">
+          <h2>Mensajes</h2>
+        </div>
+        
+        <div className="chat-sidebar-content">
+          {cargando ? (
+            <div className="chat-loading-state">
+              <div className="chat-loading-spinner"></div>
+              <span>Cargando conversaciones...</span>
             </div>
-          ))
-        )}
-      </div>
-
-
-      {/* VISTA DEL CHAT */}
-      <div className={estilos.chatVista}>
-        <div className={estilos.mensajes}>
-          {cargandoMensajes ? (
-            <div className={estilos.cargandoMensajes}>Cargando mensajes...</div>
-          ) : mensajes.length === 0 ? (
-            <div className={estilos.sinMensajes}>No hay mensajes. ¡Envía el primero!</div>
+          ) : sinPerfiles ? (
+            <div className="no-chats-message">
+              <div className="no-chats-icon">💬</div>
+              <h3>No hay conversaciones</h3>
+              <p>¡Haz match con nuevas personas para comenzar a chatear!</p>
+            </div>
           ) : (
-            mensajes.map((msg) => (
-              <div
-                key={msg.id}
-                className={
-                  msg.emisor === "yo"
-                    ? estilos.mensajePropio
-                    : estilos.mensajeOtro
-                }
-              >
-                {msg.texto}
-              </div>
-            ))
+            <div className="chat-list">
+              <AnimatePresence>
+                {perfiles.map((perfil) => (
+                  <motion.div
+                    key={perfil.con_usuario_id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={() => cambiarChat(perfil.con_nombre, perfil.encuentro_id)}
+                    className={`chat-list-item ${
+                      perfil.con_nombre === chatActivo ? 'active' : ''
+                    }`}
+                  >
+                    <div className="chat-avatar">
+                      <div className="avatar-placeholder">
+                        {perfil.con_nombre.charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                    <div className="chat-info">
+                      <div className="chat-name">{perfil.con_nombre}</div>
+                      <div className="chat-last-message">
+                        {/* Mostrar el último mensaje si existe */}
+                        {perfil.ultimo_mensaje || "Nuevo match"}
+                      </div>
+                    </div>
+                    <div className="chat-time">
+                      {/* Formatear fecha si existe */}
+                      {perfil.fecha && new Date(perfil.fecha).toLocaleDateString('es-ES', {
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
           )}
         </div>
+      </div>
 
+      {/* VISTA DEL CHAT */}
+      <div className="chat-main">
+        {/* Partículas flotantes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {particles.map((style, i) => (
+            <div 
+              key={i}
+              className="particle"
+              style={style}
+            ></div>
+          ))}
+        </div>
+        
+        {/* Cabecera del chat */}
+        <div className="chat-header">
+          <div className="chat-header-info">
+            {chatActivo && (
+              <>
+                <div className="chat-header-avatar">
+                  <div className="avatar-placeholder">
+                    {chatActivo.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+                <div className="chat-header-name">{chatActivo}</div>
+              </>
+            )}
+          </div>
+        </div>
+        
+        {/* Área de mensajes */}
+        <div className="chat-messages-container">
+          <div className="chat-messages">
+            {cargandoMensajes ? (
+              <div className="chat-loading-messages">
+                <div className="chat-loading-spinner"></div>
+                <span>Cargando mensajes...</span>
+              </div>
+            ) : mensajes.length === 0 ? (
+              <div className="chat-no-messages">
+                <div className="no-messages-icon">✨</div>
+                <h3>No hay mensajes</h3>
+                <p>¡Envía el primer mensaje para comenzar la conversación!</p>
+              </div>
+            ) : (
+              <>
+                {mensajes.map((msg) => (
+                  <motion.div
+                    key={msg.id}
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className={`chat-message ${
+                      msg.emisor === "yo" ? "outgoing" : "incoming"
+                    }`}
+                  >
+                    <div className="message-content">
+                      <div className="message-text">{msg.texto}</div>
+                    </div>
+                  </motion.div>
+                ))}
+                {/* Elemento invisible para hacer scroll automático */}
+                <div ref={mensajesEndRef} />
+              </>
+            )}
+          </div>
+        </div>
 
-        <div className={estilos.inputContainer}>
-          <input
-            type="text"
-            placeholder="Escribe un mensaje..."
-            value={nuevoMensaje}
-            onChange={(e) => setNuevoMensaje(e.target.value)}
-            className={estilos.inputCampo}
-          />
-          <button onClick={enviarMensaje} className={estilos.botonEnviar}>
-            Enviar
-          </button>
+        {/* Área de entrada de mensaje */}
+        <div className="chat-input-area">
+          <div className="chat-input-container">
+            <textarea
+              placeholder="Escribe un mensaje..."
+              value={nuevoMensaje}
+              onChange={(e) => setNuevoMensaje(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="chat-input"
+              rows={1}
+            />
+            <motion.button 
+              onClick={enviarMensaje} 
+              className={`chat-send-button ${showSendAnimation ? 'animate-send' : ''}`}
+              disabled={nuevoMensaje.trim() === ""}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Enviar mensaje"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+              </svg>
+            </motion.button>
+          </div>
         </div>
       </div>
     </div>
   );
 };
-
 
 export default ChatVista;
