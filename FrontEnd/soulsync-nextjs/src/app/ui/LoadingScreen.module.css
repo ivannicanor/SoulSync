@@ -1,32 +1,185 @@
+/* Base container */
 .container {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: white;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  background-color: #0f172a; /* Dark blue background */
 }
 
-.spinner {
-  border: 6px solid #eee;
-  border-top: 6px solid #3498db;
+/* Animated gradient background */
+.gradientBackground {
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 225deg,
+    #1e3a8a,
+    #5b21b6,
+    #7e22ce,
+    #4c1d95,
+    #1e3a8a
+  );
+  opacity: 0.6;
+  filter: blur(60px);
+  animation: rotate 20s linear infinite;
+  z-index: 1;
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Floating glass elements */
+.floatingElements {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.floatingElement {
+  position: absolute;
+  border-radius: 40% 60% 60% 40% / 70% 30% 70% 30%;
+  background: linear-gradient(45deg, rgba(147, 197, 253, 0.2), rgba(139, 92, 246, 0.2));
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: float 20s ease-in-out infinite alternate;
+  opacity: 0.4;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(5%, 5%) rotate(120deg) scale(1.1); }
+  66% { transform: translate(-5%, 2%) rotate(240deg) scale(0.9); }
+  100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+}
+
+/* Main content container */
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  padding: 3rem;
+  max-width: 90%;
+  width: 400px;
+}
+
+/* Logo styling */
+.logoWrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1.5rem;
+}
+
+.logoRing {
+  position: absolute;
+  inset: -8px;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: girar 1s linear infinite;
-  margin-bottom: 10px;
+  border: 2px solid transparent;
+  border-top-color: #93c5fd;
+  border-left-color: #8b5cf6;
+  animation: spin 2s linear infinite;
 }
 
-.text {
-  font-size: 18px;
-  color: #555;
+.logo {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #60a5fa, #8b5cf6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.75rem;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(147, 197, 253, 0.5);
+  animation: pulse 3s ease-in-out infinite;
 }
 
-@keyframes girar {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(147, 197, 253, 0.5); }
+  50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(147, 197, 253, 0.7); }
+}
+
+/* Title styling */
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  color: transparent;
+  background: linear-gradient(to right, #93c5fd, #c4b5fd, #93c5fd);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: shimmer 4s linear infinite;
+  letter-spacing: 1px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Progress bar styling */
+.progressContainer {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(90deg, #60a5fa, #8b5cf6);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.progressBar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shine 1.5s infinite;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Loading text */
+.loadingText {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
