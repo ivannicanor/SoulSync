@@ -423,7 +423,6 @@ const CrearPerfil = () => {
                     <option value="">Selecciona tu género</option>
                     <option value="hombre">Hombre</option>
                     <option value="mujer">Mujer</option>
-                    <option value="otro">Otro</option>
                   </select>
                 </div>
                 
