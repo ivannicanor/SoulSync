@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { usePerfilGuard } from '@/hooks/usePerfilGuard';
@@ -58,6 +58,38 @@ const Home = () => {
       '0 0 15px rgba(76, 175, 80, 0.6)' // Strong like - green glow
     ]
   );
+
+  // Generar posiciones de partículas una sola vez con useMemo
+  const particles = useMemo(() => {
+    return Array.from({ length: 20 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      animationDelay: `${Math.random() * 5}s`,
+      animationDuration: `${Math.random() * 10 + 10}s`,
+    }));
+  }, []);
+
+  // Generar posiciones de corazones para la animación de match
+  const matchHearts = useMemo(() => {
+    return Array.from({ length: 30 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      animationDelay: `${Math.random() * 2}s`,
+      animationDuration: `${Math.random() * 3 + 2}s`,
+    }));
+  }, []);
+
+  // Generar posiciones de confeti para la animación de match
+  const confettiPieces = useMemo(() => {
+    return Array.from({ length: 50 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      backgroundColor: [
+        '#ff4081', '#3f51b5', '#4caf50', '#ffeb3b', '#ff9800'
+      ][Math.floor(Math.random() * 5)],
+      width: `${Math.random() * 10 + 5}px`,
+      height: `${Math.random() * 20 + 10}px`,
+      animationDelay: `${Math.random() * 1}s`,
+    }));
+  }, []);
 
   // Refs for confetti animation
   const confettiContainer = useRef<HTMLDivElement>(null);
@@ -280,16 +312,11 @@ const Home = () => {
 
       {/* Partículas flotantes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 20 }).map((_, i) => (
+        {particles.map((style, i) => (
           <div 
             key={i}
             className="particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${Math.random() * 10 + 10}s`,
-            }}
+            style={style}
           ></div>
         ))}
       </div>
@@ -301,32 +328,20 @@ const Home = () => {
             <h2>¡Es un Match!</h2>
             <p>Tú y {matchedUser} se han gustado mutuamente</p>
             <div className="match-hearts">
-              {Array.from({ length: 30 }).map((_, i) => (
+              {matchHearts.map((style, i) => (
                 <div 
                   key={i} 
                   className="match-heart"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 2}s`,
-                    animationDuration: `${Math.random() * 3 + 2}s`,
-                  }}
+                  style={style}
                 >❤️</div>
               ))}
             </div>
             <div className="match-confetti" ref={confettiContainer}>
-              {Array.from({ length: 50 }).map((_, i) => (
+              {confettiPieces.map((style, i) => (
                 <div 
                   key={i} 
                   className="confetti-piece"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    backgroundColor: [
-                      '#ff4081', '#3f51b5', '#4caf50', '#ffeb3b', '#ff9800'
-                    ][Math.floor(Math.random() * 5)],
-                    width: `${Math.random() * 10 + 5}px`,
-                    height: `${Math.random() * 20 + 10}px`,
-                    animationDelay: `${Math.random() * 1}s`,
-                  }}
+                  style={style}
                 ></div>
               ))}
             </div>

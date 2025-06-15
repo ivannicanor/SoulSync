@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import './styles.css'; // Importamos los estilos específicos para la página de registro
@@ -31,6 +31,35 @@ export default function RegisterPage() {
   const [passwordStrength, setPasswordStrength] = useState(0); // Fuerza de la contraseña (0-3)
   
   const router = useRouter(); // Hook para la navegación entre páginas
+
+  // Generar posiciones de partículas una sola vez con useMemo
+  const particles = useMemo(() => {
+    return Array.from({ length: 20 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      animationDelay: `${Math.random() * 5}s`,
+      animationDuration: `${Math.random() * 10 + 10}s`,
+    }));
+  }, []);
+
+  // Generar posiciones de confeti una sola vez
+  const confettiParticles = useMemo(() => {
+    return Array.from({ length: 50 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `-5%`,
+      backgroundColor: [
+        '#8b5cf6', // Morado
+        '#60a5fa', // Azul
+        '#a78bfa', // Lavanda
+        '#93c5fd', // Azul claro
+      ][Math.floor(Math.random() * 4)],
+      width: `${Math.random() * 10 + 5}px`,
+      height: `${Math.random() * 20 + 10}px`,
+      animationDelay: `${Math.random() * 2}s`,
+      animationDuration: `${Math.random() * 3 + 2}s`,
+      transform: `rotate(${Math.random() * 360}deg)`,
+    }));
+  }, []);
 
   /**
    * Efecto que activa la animación del fondo al cargar el componente
@@ -187,16 +216,11 @@ export default function RegisterPage() {
 
       {/* Partículas flotantes que añaden dinamismo al fondo */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 20 }).map((_, i) => (
+        {particles.map((style, i) => (
           <div 
             key={i}
             className="particle"
-            style={{
-              left: `${Math.random() * 100}%`, // Posición horizontal aleatoria
-              top: `${Math.random() * 100}%`, // Posición vertical aleatoria
-              animationDelay: `${Math.random() * 5}s`, // Retraso aleatorio
-              animationDuration: `${Math.random() * 10 + 10}s`, // Duración aleatoria
-            }}
+            style={style}
           ></div>
         ))}
       </div>
@@ -204,25 +228,11 @@ export default function RegisterPage() {
       {/* Animación de confeti que se muestra al completar el registro */}
       {showConfetti && (
         <div className="confetti-container">
-          {Array.from({ length: 50 }).map((_, i) => (
+          {confettiParticles.map((style, i) => (
             <div 
               key={i} 
               className="confetti"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `-5%`,
-                backgroundColor: [
-                  '#8b5cf6', // Morado
-                  '#60a5fa', // Azul
-                  '#a78bfa', // Lavanda
-                  '#93c5fd', // Azul claro
-                ][Math.floor(Math.random() * 4)],
-                width: `${Math.random() * 10 + 5}px`,
-                height: `${Math.random() * 20 + 10}px`,
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${Math.random() * 3 + 2}s`,
-                transform: `rotate(${Math.random() * 360}deg)`,
-              }}
+              style={style}
             ></div>
           ))}
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import './styles.css'; // Importamos los estilos específicos para la página de login
@@ -27,6 +27,24 @@ export default function LoginPage() {
   const [showExplosion, setShowExplosion] = useState(false); // Controla la animación de explosión
   
   const router = useRouter(); // Hook para la navegación entre páginas
+
+  // Generar posiciones de partículas una sola vez con useMemo
+  const particles = useMemo(() => {
+    return Array.from({ length: 20 }).map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      animationDelay: `${Math.random() * 5}s`,
+      animationDuration: `${Math.random() * 10 + 10}s`,
+    }));
+  }, []);
+
+  // Generar posiciones de partículas de explosión una sola vez
+  const explosionParticles = useMemo(() => {
+    return Array.from({ length: 20 }).map((_, i) => ({
+      transform: `rotate(${i * 18}deg) translateY(-50px)`,
+      animationDelay: `${i * 0.02}s`
+    }));
+  }, []);
 
   /**
    * Efecto que activa la animación del fondo al cargar el componente
@@ -122,16 +140,11 @@ export default function LoginPage() {
 
       {/* Partículas flotantes que añaden dinamismo al fondo */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 20 }).map((_, i) => (
+        {particles.map((style, i) => (
           <div 
             key={i}
             className="particle"
-            style={{
-              left: `${Math.random() * 100}%`, // Posición horizontal aleatoria
-              top: `${Math.random() * 100}%`, // Posición vertical aleatoria
-              animationDelay: `${Math.random() * 5}s`, // Retraso aleatorio
-              animationDuration: `${Math.random() * 10 + 10}s`, // Duración aleatoria
-            }}
+            style={style}
           ></div>
         ))}
       </div>
@@ -141,14 +154,11 @@ export default function LoginPage() {
         <div className="explosion-container">
           <div className="explosion-ring"></div>
           <div className="explosion-particles">
-            {Array.from({ length: 20 }).map((_, i) => (
+            {explosionParticles.map((style, i) => (
               <div 
                 key={i} 
                 className="explosion-particle"
-                style={{
-                  transform: `rotate(${i * 18}deg) translateY(-50px)`, // Distribuimos las partículas en círculo
-                  animationDelay: `${i * 0.02}s` // Retraso escalonado para efecto de onda
-                }}
+                style={style}
               ></div>
             ))}
           </div>
