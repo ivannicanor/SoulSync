@@ -75,7 +75,7 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     if (usuarioId) {
       obtenerNotificacionesNoLeidas();
-      const interval = setInterval(obtenerNotificacionesNoLeidas, 30000);
+      const interval = setInterval(obtenerNotificacionesNoLeidas, 5000);
       return () => clearInterval(interval);
     }
   }, [usuarioId]);
